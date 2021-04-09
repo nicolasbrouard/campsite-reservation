@@ -1,6 +1,7 @@
 # Notes
 
-https://www.springboottutorial.com/hibernate-jpa-tutorial-with-spring-boot-starter-jpa
+- https://www.springboottutorial.com/hibernate-jpa-tutorial-with-spring-boot-starter-jpa
+- https://www.baeldung.com/spring-data-jpa-query-by-date
 
 # Design
 

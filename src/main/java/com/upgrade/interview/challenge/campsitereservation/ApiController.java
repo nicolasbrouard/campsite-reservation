@@ -10,19 +10,19 @@ import reactor.core.publisher.Flux;
 @RestController
 public class ApiController {
 
-  private final StudentRepository studentRepository;
+  private final BookingRepository bookingRepository;
 
-  public ApiController(StudentRepository studentRepository) {
-    this.studentRepository = studentRepository;
+  public ApiController(BookingRepository bookingRepository) {
+    this.bookingRepository = bookingRepository;
   }
 
-  @GetMapping(path="/students")
-  public List<Student> getStudents() {
-    return studentRepository.findAll();
+  @GetMapping(path="/bookings")
+  public List<Booking> getBookingList() {
+    return bookingRepository.findAll();
   }
 
-  @GetMapping(path="/studentsflux")
-  public Flux<Student> getStudents2() {
-    return Flux.fromIterable(studentRepository.findAll());
+  @GetMapping(path="/booking/list")
+  public Flux<Booking> getBookingListFlux() {
+    return Flux.fromIterable(bookingRepository.findAll());
   }
 }
