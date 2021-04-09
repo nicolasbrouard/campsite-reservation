@@ -1,5 +1,7 @@
 # Campsite reservation
 
+![workflow status badge](https://github.com/nicolasbrouard/campsite-reservation/actions/workflows/gradle.yml/badge.svg)
+
 https://github.com/nicolasbrouard/campsite-reservation/
 
 Back-end Tech Challenge: Campsite reservation REST API service
