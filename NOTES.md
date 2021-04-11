@@ -8,15 +8,16 @@
 ## Mandatory endpoints
 ```
 GET /available startDate endDate -> list of days available
-POST /booking email fullname arrivalDate departureDate -> SUCCESS (:id) / REFUSED
-PUT /booking/:id email fullname arrivalDate departureDate -> SUCCESS (:id) / REFUSED
-DELETE /booking/:id
+POST /bookings email fullname arrivalDate departureDate -> SUCCESS (:id) / REFUSED
+PUT /bookings/:id email fullname arrivalDate departureDate -> SUCCESS (:id) / REFUSED
+DELETE /bookings/:id
 ```
 
 ## More endpoints
 ```
-GET /booking/list
-GET /booking/available
+GET /bookings
+GET /bookings/available
+GET /bookings/:id
 ```
 
 ## Config
@@ -34,9 +35,9 @@ Booking
 - departureDate
 
 ## Insertion or modification
-- Validate booking info -> REFUSED because too long, or too late, or too early.
+- Validate booking info -> REFUSED (400 bad request)  because too long, or too late, or too early.
 - Start transaction
 - Select booking between arrivalDate and departureDate
 - if empty, insert new booking
-- else REFUSED because already booked  
+- else REFUSED because already booked (409 conflict)
 - Commit transaction

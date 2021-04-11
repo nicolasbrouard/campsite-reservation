@@ -14,3 +14,8 @@ logging:
   level:
     web: INFO
     org.hibernate.SQL: DEBUG
+
+campsite:
+  max-stay-in-days: 3
+  max-days-ahead-of-arrival: 31
+  min-days-ahead-of-arrival: 1
