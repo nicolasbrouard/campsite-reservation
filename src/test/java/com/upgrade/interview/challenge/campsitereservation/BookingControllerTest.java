@@ -12,6 +12,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.upgrade.interview.challenge.campsitereservation.persistence.BookingRepository;
+import com.upgrade.interview.challenge.campsitereservation.rest.BookingController;
+
 @WebMvcTest
 @AutoConfigureMockMvc
 class BookingControllerTest {

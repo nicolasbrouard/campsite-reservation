@@ -1,4 +1,4 @@
-package com.upgrade.interview.challenge.campsitereservation;
+package com.upgrade.interview.challenge.campsitereservation.persistence;
 
 import java.time.LocalDate;
 
@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import com.upgrade.interview.challenge.campsitereservation.rest.BookingInput;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

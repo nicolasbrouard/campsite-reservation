@@ -1,4 +1,4 @@
-package com.upgrade.interview.challenge.campsitereservation;
+package com.upgrade.interview.challenge.campsitereservation.validation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

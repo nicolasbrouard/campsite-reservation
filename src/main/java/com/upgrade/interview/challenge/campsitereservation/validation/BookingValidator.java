@@ -1,4 +1,4 @@
-package com.upgrade.interview.challenge.campsitereservation;
+package com.upgrade.interview.challenge.campsitereservation.validation;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -8,6 +8,9 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.stereotype.Component;
+
+import com.upgrade.interview.challenge.campsitereservation.rest.BookingInput;
+import com.upgrade.interview.challenge.campsitereservation.CampsiteConfiguration;
 
 @Component
 public class BookingValidator implements ConstraintValidator<BookingConstraint, BookingInput> {
@@ -39,8 +42,16 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
       valid = false;
     }
 
-    // The campsite can be reserved for max 3 days.
+    // The campsite can be reserved for min 1 days.
     final long stayInDays = DAYS.between(arrivalDate, departureDate);
+    if (stayInDays < 1) {
+      context.buildConstraintViolationWithTemplate(
+          "The campsite can be reserved for minimum 1 day")
+          .addConstraintViolation();
+      valid = false;
+    }
+
+    // The campsite can be reserved for max 3 days.
     final long maxStayInDays = configuration.getMaxStayInDays();
     if (stayInDays > maxStayInDays) {
       context.buildConstraintViolationWithTemplate(

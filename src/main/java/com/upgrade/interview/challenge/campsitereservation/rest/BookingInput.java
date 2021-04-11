@@ -1,4 +1,4 @@
-package com.upgrade.interview.challenge.campsitereservation;
+package com.upgrade.interview.challenge.campsitereservation.rest;
 
 import java.time.LocalDate;
 
@@ -7,6 +7,7 @@ import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.upgrade.interview.challenge.campsitereservation.validation.BookingConstraint;
 import lombok.Value;
 
 @Value
