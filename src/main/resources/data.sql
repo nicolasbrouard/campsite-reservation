@@ -1,5 +1,5 @@
 insert into booking
-values(10001, '2021-07-06', '2021-07-08', 'francois.tremblay@email.com', 'François Tremblay');
+values(1001, '2021-05-01', '2021-05-02', 'mario.blouin@email.com', 'Mario Blouin');
 
 insert into booking
-values(10002, '2021-07-09', '2021-07-10', 'mario.blouin@email.com', 'Mario Blouin');
+values(1002, '2021-04-20', '2021-04-22', 'francois.tremblay@email.com', 'François Tremblay');
