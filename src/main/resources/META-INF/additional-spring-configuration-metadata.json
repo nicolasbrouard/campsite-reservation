@@ -1,0 +1,18 @@
+{
+  "properties": [
+    {
+      "name": "campsite.max-stay-in-days",
+      "type": "java.lang.Long",
+      "description": "Maximum booking duration in days."
+    },
+    {
+      "name": "campsite.max-days-ahead-of-arrival",
+      "type": "java.lang.Long",
+      "description": "Maximum number of days before the arrival date of a booking."
+    },
+    {
+      "name": "campsite.min-days-ahead-of-arrival",
+      "type": "java.lang.Long",
+      "description": "Minimum number of days before the arrival date of a booking."
+    }
+  ] }

@@ -8,9 +8,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.upgrade.interview.challenge.campsitereservation.validation.BookingConstraint;
+import lombok.Builder;
 import lombok.Value;
 
 @Value
+@Builder
 @BookingConstraint
 public class BookingInput {
   @Email(message = "Email should be valid")

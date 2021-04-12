@@ -1,0 +1,9 @@
+spring:
+  h2:
+    console:
+      enabled: false
+
+campsite:
+  max-stay-in-days: 3
+  max-days-ahead-of-arrival: 31
+  min-days-ahead-of-arrival: 1
