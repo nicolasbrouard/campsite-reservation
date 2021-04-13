@@ -80,3 +80,7 @@ The postman public workspace is https://www.postman.com/nbrouard/workspace/campi
 When creating a release with GitHub, the workflow deploys the application, and a load balancer to Google Cloud Engine.
 
 The load balancer has an external IP which allows to access the application with a public IP.
+
+## SonarQube
+
+Static analysis of the code: https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation

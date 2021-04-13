@@ -1,8 +1,10 @@
 plugins {
     id 'java'
+    id 'jacoco'
     id 'org.springframework.boot' version '2.4.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id "io.freefair.lombok" version "5.3.3.3"
+    id "org.sonarqube" version "3.1.1"
 
     //	Check if new versions are available among dependencies
     id "com.github.ben-manes.versions" version "0.38.0"
@@ -12,6 +14,14 @@ group = 'com.upgrade.interview.challenge'
 version = '1.0-SNAPSHOT'
 description = 'Back-end Tech Challenge: Campsite reservation REST API service'
 sourceCompatibility = '11'
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "nicolasbrouard_campsite-reservation"
+        property "sonar.organization", "nbrouard"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
+}
 
 configurations {
     compileOnly {
@@ -27,8 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.5.2'
-//    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.5.7'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
@@ -39,3 +48,12 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+test.finalizedBy jacocoTestReport
+
+tasks["sonarqube"].dependsOn test
