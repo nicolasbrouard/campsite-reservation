@@ -27,6 +27,7 @@ env:
 
 jobs:
   build:
+    name: Java build
     runs-on: ubuntu-latest
 
     steps:
@@ -40,6 +41,11 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Upload jar
+        uses: actions/upload-artifact@v2
+        with:
+          name: jar
+          path: build/libs/*.jar
 
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
@@ -51,6 +57,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+
+    - name: Download jar from java build job
+      uses: actions/download-artifact@v2
+      with:
+        name: jar
 
     # Setup gcloud CLI
     - uses: google-github-actions/setup-gcloud@v0.2.0
