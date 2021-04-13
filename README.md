@@ -39,10 +39,12 @@ To streamline the reservations a few constraints need to be in place
 
 ## Notes
 
-LocalDate is used to store date of the booking. 
+LocalDate is used to store date of the booking.
+
 Booking from start (ex: 2021-04-14) to end (ex: 2021-04-17) means the arrival datetime is 2021-04-14 at 12:00 AM
 and the departure date is 2021-04-17 at 12:00 AM. 
-In terms of availabilities, it means the days 14th, 15th and 16th are book and 17th is available.
+
+In terms of availabilities, it means the days 14th, 15th and 16th are booked and 17th is available.
 
 ## How to execute
 
@@ -50,7 +52,9 @@ In terms of availabilities, it means the days 14th, 15th and 16th are book and 1
 ./gradlew bootRun
 ```
 
-## Simple request using [httpie](https://httpie.io/)
+Swagger UI is embedded and available at http://localhost:8080/swagger-ui.html.
+
+## Sample requests using [httpie](https://httpie.io/)
 
 ```shell
 http :8080/bookings
@@ -62,3 +66,17 @@ http -v PUT :8080/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@g
 http :8080/booking/1
 http DELETE :8080/bookings/1
 ```
+ 
+## Testing with Swagger UI
+
+Visit http://localhost:8080/swagger-ui.html or http://34.95.46.35/swagger-ui.html.
+
+## Testing with Postman
+
+The postman public workspace is https://www.postman.com/nbrouard/workspace/camping-reservation.
+
+## Deployment to Kubernetes
+
+When creating a release with GitHub, the workflow deploys the application, and a load balancer to Google Cloud Engine.
+
+The load balancer has an external IP which allows to access the application with a public IP.
