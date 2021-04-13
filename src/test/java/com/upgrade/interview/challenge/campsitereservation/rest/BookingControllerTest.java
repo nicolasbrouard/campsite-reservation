@@ -1,5 +1,6 @@
 package com.upgrade.interview.challenge.campsitereservation.rest;
 
+import static com.upgrade.interview.challenge.campsitereservation.rest.BookingController.BASE_AVAILABLE_PATH;
 import static com.upgrade.interview.challenge.campsitereservation.rest.BookingController.BASE_PATH;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
@@ -13,8 +14,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -37,13 +40,11 @@ import com.upgrade.interview.challenge.campsitereservation.persistence.BookingRe
 @SpringBootTest
 @AutoConfigureMockMvc
 class BookingControllerTest {
+  private final ObjectMapper objectMapper = new ObjectMapper();
   @MockBean
   private BookingRepository bookingRepository;
-
   @Autowired
   private MockMvc mockMvc;
-
-  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @BeforeEach
   void setUp() {
@@ -155,5 +156,73 @@ class BookingControllerTest {
     mockMvc.perform(delete(BASE_PATH + "/1"))
         .andDo(print())
         .andExpect(status().isOk());
+  }
+
+  @Test
+  void getAvailabilitiesBetween_noBooking() throws Exception {
+    mockMvc.perform(get(BASE_AVAILABLE_PATH)
+        .queryParam("start", "2021-01-28")
+        .queryParam("end", "2021-02-03"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json("[2021-01-28, 2021-01-29, 2021-01-30, 2021-01-31, 2021-02-01, 2021-02-02]"));
+  }
+
+  @Test
+  void getAvailabilitiesBetween_1Booking() throws Exception {
+    final Booking booking = Fixtures.createValidBooking(LocalDate.parse("2021-01-29"), 2);
+    when(bookingRepository.findAllByArrivalDateBetween(any(), any())).thenReturn(Stream.of(booking));
+    when(bookingRepository.findAllByDepartureDateBetween(any(), any())).thenReturn(Stream.of(booking));
+    mockMvc.perform(get(BASE_AVAILABLE_PATH)
+        .queryParam("start", "2021-01-28")
+        .queryParam("end", "2021-02-03"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json("[2021-01-28, 2021-01-31, 2021-02-01, 2021-02-02]"));
+  }
+
+  @Test
+  void getAvailabilitiesBetween_2Bookings() throws Exception {
+    final Booking booking1 = Fixtures.createValidBooking(LocalDate.parse("2021-01-29"), 2);
+    final Booking booking2 = Fixtures.createValidBooking(LocalDate.parse("2021-02-01"), 1);
+    when(bookingRepository.findAllByArrivalDateBetween(any(), any())).thenReturn(Stream.of(booking1, booking2));
+    when(bookingRepository.findAllByDepartureDateBetween(any(), any())).thenReturn(Stream.of(booking1, booking2));
+    mockMvc.perform(get(BASE_AVAILABLE_PATH)
+        .queryParam("start", "2021-01-28")
+        .queryParam("end", "2021-02-03"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json("[2021-01-28, 2021-01-31, 2021-02-02]"));
+  }
+
+  @Test
+  void getAvailabilitiesBetween_1Booking_overlapStartDate() throws Exception {
+    final Booking booking = Fixtures.createValidBooking(LocalDate.parse("2021-01-27"), 3);
+    when(bookingRepository.findAllByArrivalDateBetween(any(), any())).thenReturn(Stream.of(booking));
+    when(bookingRepository.findAllByDepartureDateBetween(any(), any())).thenReturn(Stream.empty());
+    mockMvc.perform(get(BASE_AVAILABLE_PATH)
+        .queryParam("start", "2021-01-28")
+        .queryParam("end", "2021-02-03"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json("[2021-01-30, 2021-01-31, 2021-02-01, 2021-02-02]"));
+  }
+
+  @Test
+  void getAvailabilitiesBetween_1Booking_overlapEndDate() throws Exception {
+    final Booking booking = Fixtures.createValidBooking(LocalDate.parse("2021-02-02"), 3);
+    when(bookingRepository.findAllByArrivalDateBetween(any(), any())).thenReturn(Stream.empty());
+    when(bookingRepository.findAllByDepartureDateBetween(any(), any())).thenReturn(Stream.of(booking));
+    mockMvc.perform(get(BASE_AVAILABLE_PATH)
+        .queryParam("start", "2021-01-28")
+        .queryParam("end", "2021-02-03"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json("[2021-01-28, 2021-01-29, 2021-01-30, 2021-01-31, 2021-02-01]"));
   }
 }

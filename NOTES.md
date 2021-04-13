@@ -7,14 +7,16 @@
 # Design
 
 ## Mandatory endpoints
+
 ```
-GET /available startDate endDate -> list of days available
+GET /availabilities startDate endDate -> list of days available
 POST /bookings email fullname arrivalDate departureDate -> SUCCESS (:id) / REFUSED
 PUT /bookings/:id email fullname arrivalDate departureDate -> SUCCESS (:id) / REFUSED
 DELETE /bookings/:id
 ```
 
 ## More endpoints
+
 ```
 GET /bookings
 GET /bookings/available
@@ -22,6 +24,7 @@ GET /bookings/:id
 ```
 
 ## Config
+
 - Max stay duration: 3
 - Max booking plan: 30 days
 - Min booking plan: 1 day
@@ -29,6 +32,7 @@ GET /bookings/:id
 ## Data
 
 Booking
+
 - id
 - email
 - fullname
@@ -36,6 +40,7 @@ Booking
 - departureDate
 
 ## Insertion or modification
+
 - Validate booking info -> REFUSED (400 bad request)  because too long, or too late, or too early.
 - Start transaction
 - Select booking between arrivalDate and departureDate

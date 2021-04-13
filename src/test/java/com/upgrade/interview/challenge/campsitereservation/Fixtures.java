@@ -60,4 +60,14 @@ public class Fixtures {
         .departureDate(LocalDate.now().plusDays(2))
         .build();
   }
+
+  public static Booking createValidBooking(LocalDate arrivalDate, int numberOfDays) {
+    return Booking.builder()
+        .id(1)
+        .email("name@email.com")
+        .fullname("name")
+        .arrivalDate(arrivalDate)
+        .departureDate(arrivalDate.plusDays(numberOfDays))
+        .build();
+  }
 }

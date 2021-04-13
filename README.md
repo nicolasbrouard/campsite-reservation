@@ -36,3 +36,29 @@ To streamline the reservations a few constraints need to be in place
 - Provide appropriate error messages to the caller to indicate the error cases.
 - In general, the system should be able to handle large volume of requests for getting the campsite availability.
 - There are no restrictions on how reservations are stored as long as system constraints are not violated.
+
+## Notes
+
+LocalDate is used to store date of the booking. 
+Booking from start (ex: 2021-04-14) to end (ex: 2021-04-17) means the arrival datetime is 2021-04-14 at 12:00 AM
+and the departure date is 2021-04-17 at 12:00 AM. 
+In terms of availabilities, it means the days 14th, 15th and 16th are book and 17th is available.
+
+## How to execute
+
+```shell
+./gradlew bootRun
+```
+
+## Simple request using [httpie](https://httpie.io/)
+
+```shell
+http :8080/bookings
+http :8080/availabilities
+http -v POST :8080/bookings fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-01' departureDate='2021-05-03'
+http :8080/bookings
+http :8080/booking/1
+http -v PUT :8080/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-02' departureDate='2021-05-03'
+http :8080/booking/1
+http DELETE :8080/bookings/1
+```
