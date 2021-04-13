@@ -83,4 +83,4 @@ The load balancer has an external IP which allows to access the application with
 
 ## SonarQube
 
-Static analysis of the code: https://sonarcloud.io/project/configuration?id=nicolasbrouard_campsite-reservation
+Static analysis of the code: https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation
