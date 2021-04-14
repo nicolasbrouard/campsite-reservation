@@ -2,6 +2,7 @@ package com.upgrade.interview.challenge.campsitereservation.rest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.validation.Valid;
 
@@ -73,18 +74,9 @@ public class BookingController {
   @PutMapping(path = BASE_PATH + "/{id}")
   public Booking updateBooking(@PathVariable long id, @Valid @RequestBody BookingInput bookingInput) {
     log.info("Update booking {} with {}", id, bookingInput);
-    final Booking booking = bookingService.findById(id)
-        .map(b -> {
-          b.updateWith(bookingInput);
-          return b;
-        })
-        .orElseGet(() -> {
-          final Booking b = Booking.create(bookingInput);
-          b.setId(id);
-          return b;
-        });
-    // TODO not possible to modify the date if it overlap the previous date
-    return bookingService.add(booking);
+    final Booking oldBooking = bookingService.findById(id).orElseThrow(() -> new NoSuchElementException());// TODO
+    final Booking newBooking = Booking.create(bookingInput);
+    return bookingService.update(oldBooking, newBooking);
   }
 
   @DeleteMapping(path = BASE_PATH + "/{id}")

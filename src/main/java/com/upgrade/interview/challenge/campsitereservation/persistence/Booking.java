@@ -1,18 +1,22 @@
 package com.upgrade.interview.challenge.campsitereservation.persistence;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Version;
 
+import com.upgrade.interview.challenge.campsitereservation.Utils;
 import com.upgrade.interview.challenge.campsitereservation.rest.BookingInput;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "Booking")
 @Data
 @Builder
 @NoArgsConstructor
@@ -31,6 +35,10 @@ public class Booking {
   @GeneratedValue
   private long id;
 
+  @Version
+  @GeneratedValue
+  private long version;
+
   private String email;
 
   private String fullname;
@@ -41,9 +49,10 @@ public class Booking {
 //  @Temporal(TemporalType.DATE)
   private LocalDate departureDate;
 
-  public void updateWith(BookingInput bookingInput) {
-    setFullname(bookingInput.getFullname());
-    setArrivalDate(bookingInput.getArrivalDate());
-    setDepartureDate(bookingInput.getDepartureDate());
+  public List<BookingDate> bookingDates() {
+    return Utils.datesBetween(arrivalDate, departureDate)
+        .stream()
+        .map(localDate -> BookingDate.builder().date(localDate).build())
+        .collect(Collectors.toList());
   }
 }
