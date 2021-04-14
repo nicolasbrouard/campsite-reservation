@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.upgrade.interview.challenge.campsitereservation.Fixtures;
-import com.upgrade.interview.challenge.campsitereservation.rest.BookingInput;
+import com.upgrade.interview.challenge.campsitereservation.rest.Booking;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -43,11 +43,11 @@ class BookingValidatorTest {
 
   @ParameterizedTest
   @MethodSource("invalid_source")
-  void testInvalid(BookingInput bookingInput) {
+  void testInvalid(Booking booking) {
     when(context.buildConstraintViolationWithTemplate(any()))
         .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
 
-    assertThat(bookingValidator.isValid(bookingInput, context)).isFalse();
+    assertThat(bookingValidator.isValid(booking, context)).isFalse();
   }
 
   @Test

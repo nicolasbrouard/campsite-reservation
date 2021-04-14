@@ -2,12 +2,12 @@ package com.upgrade.interview.challenge.campsitereservation;
 
 import java.time.LocalDate;
 
-import com.upgrade.interview.challenge.campsitereservation.persistence.Booking;
-import com.upgrade.interview.challenge.campsitereservation.rest.BookingInput;
+import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEntity;
+import com.upgrade.interview.challenge.campsitereservation.rest.Booking;
 
 public class Fixtures {
-  public static Booking createValidBooking() {
-    return Booking.builder()
+  public static BookingEntity createValidBooking() {
+    return BookingEntity.builder()
         .id(1)
         .email("name@email.com")
         .fullname("name")
@@ -16,8 +16,8 @@ public class Fixtures {
         .build();
   }
 
-  public static BookingInput createValidBookingInput() {
-    return BookingInput.builder()
+  public static Booking createValidBookingInput() {
+    return Booking.builder()
         .email("name@email.com")
         .fullname("name")
         .arrivalDate(LocalDate.now().plusDays(2))
@@ -25,8 +25,8 @@ public class Fixtures {
         .build();
   }
 
-  public static BookingInput createTooEarlyBookingInput() {
-    return BookingInput.builder()
+  public static Booking createTooEarlyBookingInput() {
+    return Booking.builder()
         .email("name@email.com")
         .fullname("name")
         .arrivalDate(LocalDate.now())
@@ -34,8 +34,8 @@ public class Fixtures {
         .build();
   }
 
-  public static BookingInput createTooLateBookingInput() {
-    return BookingInput.builder()
+  public static Booking createTooLateBookingInput() {
+    return Booking.builder()
         .email("name@email.com")
         .fullname("name")
         .arrivalDate(LocalDate.now().plusDays(32))
@@ -43,8 +43,8 @@ public class Fixtures {
         .build();
   }
 
-  public static BookingInput createTooLongBookingInput() {
-    return BookingInput.builder()
+  public static Booking createTooLongBookingInput() {
+    return Booking.builder()
         .email("name@email.com")
         .fullname("name")
         .arrivalDate(LocalDate.now().plusDays(2))
@@ -52,8 +52,8 @@ public class Fixtures {
         .build();
   }
 
-  public static BookingInput createTooShortBookingInput() {
-    return BookingInput.builder()
+  public static Booking createTooShortBookingInput() {
+    return Booking.builder()
         .email("name@email.com")
         .fullname("name")
         .arrivalDate(LocalDate.now().plusDays(2))
@@ -61,8 +61,8 @@ public class Fixtures {
         .build();
   }
 
-  public static Booking createValidBooking(LocalDate arrivalDate, int numberOfDays) {
-    return Booking.builder()
+  public static BookingEntity createValidBooking(LocalDate arrivalDate, int numberOfDays) {
+    return BookingEntity.builder()
         .id(1)
         .email("name@email.com")
         .fullname("name")

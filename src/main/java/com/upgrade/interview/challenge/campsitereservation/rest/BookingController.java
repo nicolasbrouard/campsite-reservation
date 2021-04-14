@@ -3,6 +3,7 @@ package com.upgrade.interview.challenge.campsitereservation.rest;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.upgrade.interview.challenge.campsitereservation.persistence.Booking;
+import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEntity;
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,13 +39,15 @@ public class BookingController {
   }
 
   @GetMapping(path = BASE_PATH)
-  public List<Booking> getBookingList() {
-    return bookingService.findAll();
+  public Stream<Booking> getBookingList() {
+    return bookingService.findAll()
+        .stream()
+        .map(Booking::createFrom);
   }
 
   @GetMapping(path = BASE_PATH + "/{id}")
   public ResponseEntity<Booking> getBooking(@PathVariable long id) {
-    return ResponseEntity.of(bookingService.findById(id));
+    return ResponseEntity.of(bookingService.findById(id).map(Booking::createFrom));
   }
 
   @GetMapping(path = BASE_AVAILABLE_PATH)
@@ -66,17 +69,17 @@ public class BookingController {
   }
 
   @PostMapping(path = BASE_PATH)
-  public Booking addBooking(@Valid @RequestBody BookingInput bookingInput) {
-    log.info("Add booking {}", bookingInput);
-    return bookingService.add(Booking.create(bookingInput));
+  public Booking addBooking(@Valid @RequestBody Booking booking) {
+    log.info("Add booking {}", booking);
+    return Booking.createFrom(bookingService.add(BookingEntity.createFrom(booking)));
   }
 
   @PutMapping(path = BASE_PATH + "/{id}")
-  public Booking updateBooking(@PathVariable long id, @Valid @RequestBody BookingInput bookingInput) {
-    log.info("Update booking {} with {}", id, bookingInput);
-    final Booking oldBooking = bookingService.findById(id).orElseThrow(() -> new NoSuchElementException());// TODO
-    final Booking newBooking = Booking.create(bookingInput);
-    return bookingService.update(oldBooking, newBooking);
+  public Booking updateBooking(@PathVariable long id, @Valid @RequestBody Booking booking) {
+    log.info("Update booking {} with {}", id, booking);
+    final BookingEntity oldBookingEntity = bookingService.findById(id).orElseThrow(NoSuchElementException::new);// TODO
+    final BookingEntity newBookingEntity = BookingEntity.createFrom(booking);
+    return Booking.createFrom(bookingService.update(oldBookingEntity, newBookingEntity));
   }
 
   @DeleteMapping(path = BASE_PATH + "/{id}")

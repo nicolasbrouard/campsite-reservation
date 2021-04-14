@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Version;
 
 import com.upgrade.interview.challenge.campsitereservation.Utils;
-import com.upgrade.interview.challenge.campsitereservation.rest.BookingInput;
+import com.upgrade.interview.challenge.campsitereservation.rest.Booking;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,13 +21,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Booking {
-  public static Booking create(BookingInput bookingInput) {
-    return Booking.builder()
-        .email(bookingInput.getEmail())
-        .fullname(bookingInput.getFullname())
-        .arrivalDate(bookingInput.getArrivalDate())
-        .departureDate(bookingInput.getDepartureDate())
+public class BookingEntity {
+
+  /**
+   * Creates a BookingEntity object from Booking object.
+   */
+  public static BookingEntity createFrom(Booking booking) {
+    return BookingEntity.builder()
+        .email(booking.getEmail())
+        .fullname(booking.getFullname())
+        .arrivalDate(booking.getArrivalDate())
+        .departureDate(booking.getDepartureDate())
         .build();
   }
 
