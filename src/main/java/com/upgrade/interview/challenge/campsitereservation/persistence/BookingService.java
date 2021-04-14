@@ -80,9 +80,8 @@ public class BookingService {
   }
 
   @VisibleForTesting // TODO write test
-  List<LocalDate> bookingDatesBetween(LocalDate inclusiveStart, LocalDate exclusiveEnd) {
-    return bookingDateRepository.findAllDatesBetween(inclusiveStart, exclusiveEnd)
-        .stream()
+  List<LocalDate> bookingDatesBetween(LocalDate startInclusive, LocalDate endExclusive) {
+    return bookingDateRepository.findAllDatesBetween(startInclusive, endExclusive)
         .map(BookingDate::getDate)
         .collect(Collectors.toList());
   }

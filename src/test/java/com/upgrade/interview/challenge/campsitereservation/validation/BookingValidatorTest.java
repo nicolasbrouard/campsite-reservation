@@ -34,10 +34,10 @@ class BookingValidatorTest {
 
   private static Stream<Arguments> invalid_source() {
     return Stream.of(
-        Arguments.of(Fixtures.createTooEarlyBookingInput(), false),
-        Arguments.of(Fixtures.createTooLateBookingInput(), false),
-        Arguments.of(Fixtures.createTooLongBookingInput(), false),
-        Arguments.of(Fixtures.createTooShortBookingInput(), false)
+        Arguments.of(Fixtures.createTooEarlyBooking(), false),
+        Arguments.of(Fixtures.createTooLateBooking(), false),
+        Arguments.of(Fixtures.createTooLongBooking(), false),
+        Arguments.of(Fixtures.createTooShortBooking(), false)
     );
   }
 
@@ -52,6 +52,6 @@ class BookingValidatorTest {
 
   @Test
   void testValid() {
-    assertThat(bookingValidator.isValid(Fixtures.createValidBookingInput(), context)).isTrue();
+    assertThat(bookingValidator.isValid(Fixtures.createValidBooking(), context)).isTrue();
   }
 }

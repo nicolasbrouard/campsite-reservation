@@ -1,7 +1,7 @@
 package com.upgrade.interview.challenge.campsitereservation.persistence;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.stream.Stream;
 
 import javax.persistence.LockModeType;
 
@@ -14,5 +14,5 @@ import org.springframework.stereotype.Repository;
 public interface BookingDateRepository extends JpaRepository<BookingDate, LocalDate> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select d from #{#entityName} d where d.date >= ?1 and d.date < ?2")
-  List<BookingDate> findAllDatesBetween(LocalDate inclusiveStart, LocalDate exclusiveEnd);
+  Stream<BookingDate> findAllDatesBetween(LocalDate startInclusive, LocalDate endExclusive);
 }

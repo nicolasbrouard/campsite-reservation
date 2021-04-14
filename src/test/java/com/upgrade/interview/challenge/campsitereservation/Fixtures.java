@@ -1,22 +1,29 @@
 package com.upgrade.interview.challenge.campsitereservation;
 
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
+import com.upgrade.interview.challenge.campsitereservation.persistence.BookingDate;
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEntity;
 import com.upgrade.interview.challenge.campsitereservation.rest.Booking;
 
 public class Fixtures {
-  public static BookingEntity createValidBooking() {
+  public static BookingEntity createValidBookingEntity(LocalDate arrivalDate, int numberOfDays) {
     return BookingEntity.builder()
         .id(1)
         .email("name@email.com")
         .fullname("name")
-        .arrivalDate(LocalDate.now().plusDays(2))
-        .departureDate(LocalDate.now().plusDays(4))
+        .arrivalDate(arrivalDate)
+        .departureDate(arrivalDate.plusDays(numberOfDays))
+        .version(0)
         .build();
   }
 
-  public static Booking createValidBookingInput() {
+  public static BookingEntity createValidBookingEntity() {
+    return createValidBookingEntity(LocalDate.now().plusDays(2), 2);
+  }
+
+  public static Booking createBooking(LocalDate arrivalDate, int numberOfDays) {
     return Booking.builder()
         .email("name@email.com")
         .fullname("name")
@@ -25,49 +32,30 @@ public class Fixtures {
         .build();
   }
 
-  public static Booking createTooEarlyBookingInput() {
-    return Booking.builder()
-        .email("name@email.com")
-        .fullname("name")
-        .arrivalDate(LocalDate.now())
-        .departureDate(LocalDate.now().plusDays(2))
-        .build();
+  public static Booking createValidBooking() {
+    return createBooking(LocalDate.now().plusDays(2), 3);
   }
 
-  public static Booking createTooLateBookingInput() {
-    return Booking.builder()
-        .email("name@email.com")
-        .fullname("name")
-        .arrivalDate(LocalDate.now().plusDays(32))
-        .departureDate(LocalDate.now().plusDays(33))
-        .build();
+  public static Booking createTooEarlyBooking() {
+    return createBooking(LocalDate.now(), 2);
   }
 
-  public static Booking createTooLongBookingInput() {
-    return Booking.builder()
-        .email("name@email.com")
-        .fullname("name")
-        .arrivalDate(LocalDate.now().plusDays(2))
-        .departureDate(LocalDate.now().plusDays(6))
-        .build();
+  public static Booking createTooLateBooking() {
+    return createBooking(LocalDate.now().plusDays(32), 1);
   }
 
-  public static Booking createTooShortBookingInput() {
-    return Booking.builder()
-        .email("name@email.com")
-        .fullname("name")
-        .arrivalDate(LocalDate.now().plusDays(2))
-        .departureDate(LocalDate.now().plusDays(2))
-        .build();
+  public static Booking createTooLongBooking() {
+    return createBooking(LocalDate.now().plusDays(2), 4);
   }
 
-  public static BookingEntity createValidBooking(LocalDate arrivalDate, int numberOfDays) {
-    return BookingEntity.builder()
-        .id(1)
-        .email("name@email.com")
-        .fullname("name")
-        .arrivalDate(arrivalDate)
-        .departureDate(arrivalDate.plusDays(numberOfDays))
-        .build();
+  public static Booking createTooShortBooking() {
+    return createBooking(LocalDate.now().plusDays(2), 0);
+  }
+
+  public static Stream<BookingDate> bookingDates(String startInclusive, int numberOfDays) {
+    final LocalDate start = LocalDate.parse(startInclusive);
+    final LocalDate end = start.plusDays(numberOfDays);
+    return start.datesUntil(end)
+        .map(date -> BookingDate.builder().date(date).build());
   }
 }
