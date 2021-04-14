@@ -15,4 +15,7 @@ public interface BookingDateRepository extends JpaRepository<BookingDate, LocalD
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select d from #{#entityName} d where d.date >= ?1 and d.date < ?2")
   Stream<BookingDate> findAllDatesBetween(LocalDate startInclusive, LocalDate endExclusive);
+
+  @Query("select d from #{#entityName} d where d.date >= ?1 and d.date < ?2")
+  Stream<BookingDate> findAllDatesFastBetween(LocalDate startInclusive, LocalDate endExclusive);
 }

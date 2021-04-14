@@ -79,9 +79,8 @@ public class BookingService {
     TimeUnit.SECONDS.sleep(1);
   }
 
-  @VisibleForTesting // TODO write test
-  List<LocalDate> bookingDatesBetween(LocalDate startInclusive, LocalDate endExclusive) {
-    return bookingDateRepository.findAllDatesBetween(startInclusive, endExclusive)
+  private List<LocalDate> bookingDatesBetween(LocalDate startInclusive, LocalDate endExclusive) {
+    return bookingDateRepository.findAllDatesFastBetween(startInclusive, endExclusive)
         .map(BookingDate::getDate)
         .collect(Collectors.toList());
   }

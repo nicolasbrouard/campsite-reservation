@@ -139,7 +139,7 @@ class BookingControllerTest {
   void addBooking_notAvailable() throws Exception {
     final Booking booking = Fixtures.createTooEarlyBooking();
     final String bookingJson = objectMapper.writeValueAsString(booking);
-    when(bookingDateRepository.findAllDatesBetween(any(), any()))
+    when(bookingDateRepository.findAllDatesFastBetween(any(), any()))
         .thenReturn(Stream.of(BookingDate.builder().date(booking.getArrivalDate()).build()));
     mockMvc.perform(post(BASE_PATH).contentType(MediaType.APPLICATION_JSON).content(bookingJson))
         .andDo(print())
@@ -181,7 +181,7 @@ class BookingControllerTest {
   @Test
   void getAvailabilitiesBetween_1Booking() throws Exception {
     final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-01-29", 2);
-    when(bookingDateRepository.findAllDatesBetween(any(), any())).thenReturn(bookingDates);
+    when(bookingDateRepository.findAllDatesFastBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
         .queryParam("end", "2021-02-03"))
@@ -196,7 +196,7 @@ class BookingControllerTest {
     final Stream<BookingDate> bookingDates = Stream.concat(
         Fixtures.bookingDates("2021-01-29", 2),
         Fixtures.bookingDates("2021-02-01", 1));
-    when(bookingDateRepository.findAllDatesBetween(any(), any())).thenReturn(bookingDates);
+    when(bookingDateRepository.findAllDatesFastBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
         .queryParam("end", "2021-02-03"))
@@ -209,7 +209,7 @@ class BookingControllerTest {
   @Test
   void getAvailabilitiesBetween_1Booking_overlapStartDate() throws Exception {
     final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-01-27", 3);
-    when(bookingDateRepository.findAllDatesBetween(any(), any())).thenReturn(bookingDates);
+    when(bookingDateRepository.findAllDatesFastBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
         .queryParam("end", "2021-02-03"))
@@ -222,7 +222,7 @@ class BookingControllerTest {
   @Test
   void getAvailabilitiesBetween_1Booking_overlapEndDate() throws Exception {
     final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-02-02", 3);
-    when(bookingDateRepository.findAllDatesBetween(any(), any())).thenReturn(bookingDates);
+    when(bookingDateRepository.findAllDatesFastBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
         .queryParam("end", "2021-02-03"))

@@ -27,8 +27,8 @@ public class Fixtures {
     return Booking.builder()
         .email("name@email.com")
         .fullname("name")
-        .arrivalDate(LocalDate.now().plusDays(2))
-        .departureDate(LocalDate.now().plusDays(5))
+        .arrivalDate(arrivalDate)
+        .departureDate(arrivalDate.plusDays(numberOfDays))
         .build();
   }
 
