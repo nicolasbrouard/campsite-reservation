@@ -7,6 +7,7 @@ import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEntity;
 import com.upgrade.interview.challenge.campsitereservation.validation.BookingConstraint;
 import lombok.Builder;
 import lombok.Value;
@@ -14,7 +15,21 @@ import lombok.Value;
 @Value
 @Builder
 @BookingConstraint
-public class BookingInput {
+public class Booking {
+
+  /**
+   * Creates a Booking object from BookingEntity object.
+   */
+  public static Booking createFrom(BookingEntity bookingEntity) {
+    return Booking.builder()
+        .email(bookingEntity.getEmail())
+        .fullname(bookingEntity.getFullname())
+        .arrivalDate(bookingEntity.getArrivalDate())
+        .departureDate(bookingEntity.getDepartureDate())
+        .id(bookingEntity.getId())
+        .build();
+  }
+
   @Email(message = "Email should be valid")
   @NotBlank(message = "Email cannot be blank")
   String email;
@@ -29,4 +44,6 @@ public class BookingInput {
   @Future(message = "departureDate should be in the future")
   @NotNull(message = "departureDate cannot be null")
   LocalDate departureDate;
+
+  long id;
 }

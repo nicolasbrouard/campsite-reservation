@@ -9,11 +9,11 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.stereotype.Component;
 
-import com.upgrade.interview.challenge.campsitereservation.rest.BookingInput;
+import com.upgrade.interview.challenge.campsitereservation.rest.Booking;
 import com.upgrade.interview.challenge.campsitereservation.CampsiteConfiguration;
 
 @Component
-public class BookingValidator implements ConstraintValidator<BookingConstraint, BookingInput> {
+public class BookingValidator implements ConstraintValidator<BookingConstraint, Booking> {
   private final CampsiteConfiguration configuration;
 
   public BookingValidator(CampsiteConfiguration configuration) {
@@ -26,7 +26,7 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
   }
 
   @Override
-  public boolean isValid(BookingInput booking, ConstraintValidatorContext context) {
+  public boolean isValid(Booking booking, ConstraintValidatorContext context) {
     final LocalDate arrivalDate = booking.getArrivalDate();
     final LocalDate departureDate = booking.getDepartureDate();
     final long daysAheadOfArrival = DAYS.between(LocalDate.now(), arrivalDate);

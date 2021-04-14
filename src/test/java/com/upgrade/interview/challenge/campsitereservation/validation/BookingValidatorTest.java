@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.upgrade.interview.challenge.campsitereservation.Fixtures;
-import com.upgrade.interview.challenge.campsitereservation.rest.BookingInput;
+import com.upgrade.interview.challenge.campsitereservation.rest.Booking;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -34,24 +34,24 @@ class BookingValidatorTest {
 
   private static Stream<Arguments> invalid_source() {
     return Stream.of(
-        Arguments.of(Fixtures.createTooEarlyBookingInput(), false),
-        Arguments.of(Fixtures.createTooLateBookingInput(), false),
-        Arguments.of(Fixtures.createTooLongBookingInput(), false),
-        Arguments.of(Fixtures.createTooShortBookingInput(), false)
+        Arguments.of(Fixtures.createTooEarlyBooking(), false),
+        Arguments.of(Fixtures.createTooLateBooking(), false),
+        Arguments.of(Fixtures.createTooLongBooking(), false),
+        Arguments.of(Fixtures.createTooShortBooking(), false)
     );
   }
 
   @ParameterizedTest
   @MethodSource("invalid_source")
-  void testInvalid(BookingInput bookingInput) {
+  void testInvalid(Booking booking) {
     when(context.buildConstraintViolationWithTemplate(any()))
         .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
 
-    assertThat(bookingValidator.isValid(bookingInput, context)).isFalse();
+    assertThat(bookingValidator.isValid(booking, context)).isFalse();
   }
 
   @Test
   void testValid() {
-    assertThat(bookingValidator.isValid(Fixtures.createValidBookingInput(), context)).isTrue();
+    assertThat(bookingValidator.isValid(Fixtures.createValidBooking(), context)).isTrue();
   }
 }
