@@ -62,7 +62,7 @@ public class BookingService {
   // days:     -----ooo-oooooooo----------
   //               |            |
   //              start        end
-  @Transactional
+  @Transactional(readOnly = true)
   public List<LocalDate> getAvailabilities(LocalDate start, LocalDate end) {
     // TODO is there a way not to do 2 select?
     final List<Booking> bookings = Stream.concat(

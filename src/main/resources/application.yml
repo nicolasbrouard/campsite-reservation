@@ -14,6 +14,7 @@ logging:
   level:
     web: INFO
     org.hibernate.SQL: DEBUG
+    org.springframework.orm.jpa: DEBUG
 
 campsite:
   max-stay-in-days: 3
