@@ -3,8 +3,8 @@ package com.upgrade.interview.challenge.campsitereservation.persistence;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -13,9 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.upgrade.interview.challenge.campsitereservation.Utils;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class BookingService {
 
   private final BookingRepository bookingRepository;
@@ -29,11 +30,16 @@ public class BookingService {
 
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public BookingEntity add(BookingEntity bookingEntity) {
-    final List<LocalDate> bookingDates = bookingDatesBetween(bookingEntity.getArrivalDate(), bookingEntity.getDepartureDate());
+    log.info("Adding {}", bookingEntity);
+    final List<LocalDate> bookingDates = convert(
+        bookingDateRepository.findAllDatesBetween(bookingEntity.getArrivalDate(), bookingEntity.getDepartureDate()));
     if (bookingDates.isEmpty()) {
-      slowTransactionForTest();
+      insertArtificialDelayForTestsOnly();
+      log.error("Saving {}", bookingEntity);
       bookingDateRepository.saveAll(bookingEntity.bookingDates());
-      return bookingRepository.save(bookingEntity);
+      final BookingEntity addedBookingEntity = bookingRepository.save(bookingEntity);
+      log.info("Added {}", addedBookingEntity);
+      return addedBookingEntity;
     } else {
       throw new IllegalStateException("Booking dates not available");
     }
@@ -41,20 +47,23 @@ public class BookingService {
 
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public BookingEntity update(BookingEntity oldBookingEntity, BookingEntity newBookingEntity) {
+    log.info("Updating {} with {}", oldBookingEntity, newBookingEntity);
     newBookingEntity.setId(oldBookingEntity.getId());
     newBookingEntity.setVersion(oldBookingEntity.getVersion());
     bookingDateRepository.deleteAll(oldBookingEntity.bookingDates());
-    slowTransactionForTest();
+    insertArtificialDelayForTestsOnly();
     return add(newBookingEntity);
   }
 
   @Transactional(readOnly = true)
   public Optional<BookingEntity> findById(long id) {
+    log.info("Find booking with id {}", id);
     return bookingRepository.findById(id);
   }
 
   @Transactional
   public void deleteById(long id) {
+    log.info("Deleting booking with id {}", id);
     findById(id).ifPresent(booking ->
         bookingDateRepository.deleteAll(booking.bookingDates()));
     bookingRepository.deleteById(id);
@@ -62,25 +71,27 @@ public class BookingService {
 
   @Transactional(readOnly = true)
   public List<BookingEntity> findAll() {
+    log.info("Find all booking");
     return bookingRepository.findAll(Sort.by("arrivalDate"));
   }
 
   @Transactional(readOnly = true)
-  public List<LocalDate> getAvailabilities(LocalDate start, LocalDate end) {
-    final List<LocalDate> availableDates = Utils.datesBetween(start, end);
-    final List<LocalDate> reservedDates = bookingDatesBetween(start, end);
+  public List<LocalDate> getAvailabilities(LocalDate startInclusive, LocalDate endExclusive) {
+    log.info("Get availabilities between {} and {}", startInclusive, endExclusive);
+    final List<LocalDate> availableDates = Utils.datesBetween(startInclusive, endExclusive);
+    final List<LocalDate> reservedDates = convert(
+        bookingDateRepository.fastFindAllDatesBetween(startInclusive, endExclusive));
     availableDates.removeAll(reservedDates);
     return availableDates;
   }
 
-  @VisibleForTesting // TODO write test
-  @SneakyThrows
-  void slowTransactionForTest() {
-    TimeUnit.SECONDS.sleep(1);
+  @VisibleForTesting
+  void insertArtificialDelayForTestsOnly() {
+//    TimeUnit.SECONDS.sleep(1);
   }
 
-  private List<LocalDate> bookingDatesBetween(LocalDate startInclusive, LocalDate endExclusive) {
-    return bookingDateRepository.findAllDatesFastBetween(startInclusive, endExclusive)
+  private List<LocalDate> convert(Stream<BookingDate> bookingDateStream) {
+    return bookingDateStream
         .map(BookingDate::getDate)
         .collect(Collectors.toList());
   }

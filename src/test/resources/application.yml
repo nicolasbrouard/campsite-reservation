@@ -3,6 +3,11 @@ spring:
     console:
       enabled: false
 
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.springframework.orm.jpa: DEBUG
+
 campsite:
   max-stay-in-days: 3
   max-days-ahead-of-arrival: 31

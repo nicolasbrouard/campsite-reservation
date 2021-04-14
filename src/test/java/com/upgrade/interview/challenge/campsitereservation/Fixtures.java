@@ -8,19 +8,32 @@ import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEn
 import com.upgrade.interview.challenge.campsitereservation.rest.Booking;
 
 public class Fixtures {
-  public static BookingEntity createValidBookingEntity(LocalDate arrivalDate, int numberOfDays) {
+  public static BookingEntity createBookingEntity(LocalDate arrivalDate, int numberOfDays) {
     return BookingEntity.builder()
-        .id(1)
         .email("name@email.com")
         .fullname("name")
         .arrivalDate(arrivalDate)
         .departureDate(arrivalDate.plusDays(numberOfDays))
-        .version(0)
         .build();
   }
 
-  public static BookingEntity createValidBookingEntity() {
-    return createValidBookingEntity(LocalDate.now().plusDays(2), 2);
+  public static BookingEntity createBookingEntityWithId(LocalDate arrivalDate, int numberOfDays) {
+    final BookingEntity bookingEntity = createBookingEntity(arrivalDate, numberOfDays);
+    bookingEntity.setId(1);
+    bookingEntity.setVersion(0);
+    return bookingEntity;
+  }
+
+  public static BookingEntity createBookingEntityWithId() {
+    return createBookingEntityWithId(LocalDate.now().plusDays(2), 2);
+  }
+
+  public static BookingEntity createBookingEntity() {
+    return createBookingEntity(LocalDate.now().plusDays(2), 2);
+  }
+
+  public static BookingEntity createAnotherBookingEntity() {
+    return createBookingEntity(LocalDate.now().plusDays(5), 2);
   }
 
   public static Booking createBooking(LocalDate arrivalDate, int numberOfDays) {

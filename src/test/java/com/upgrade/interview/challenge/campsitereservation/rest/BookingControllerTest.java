@@ -38,6 +38,10 @@ import com.upgrade.interview.challenge.campsitereservation.persistence.BookingDa
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEntity;
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingRepository;
 
+/**
+ * Test the BookingController.
+ * Mock the Repository classes.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class BookingControllerTest {
@@ -64,7 +68,7 @@ class BookingControllerTest {
 
   @Test
   void getBookingList_success() throws Exception {
-    final List<BookingEntity> bookingEntityList = List.of(Fixtures.createValidBookingEntity());
+    final List<BookingEntity> bookingEntityList = List.of(Fixtures.createBookingEntityWithId());
     final List<Booking> bookingList = bookingEntityList.stream().map(Booking::createFrom).collect(Collectors.toList());
     final String bookingListJson = objectMapper.writeValueAsString(bookingList);
     when(bookingRepository.findAll(any(Sort.class))).thenReturn(bookingEntityList);
@@ -89,7 +93,7 @@ class BookingControllerTest {
 
   @Test
   void getBooking_success() throws Exception {
-    final BookingEntity bookingEntity = Fixtures.createValidBookingEntity();
+    final BookingEntity bookingEntity = Fixtures.createBookingEntityWithId();
     final String bookingJson = objectMapper.writeValueAsString(Booking.createFrom(bookingEntity));
     when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.of(bookingEntity));
     mockMvc.perform(get(BASE_PATH + "/" + bookingEntity.getId()))
@@ -101,7 +105,7 @@ class BookingControllerTest {
 
   @Test
   void getBooking_unknown() throws Exception {
-    final BookingEntity bookingEntity = Fixtures.createValidBookingEntity();
+    final BookingEntity bookingEntity = Fixtures.createBookingEntityWithId();
     when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.empty());
     mockMvc.perform(get(BASE_PATH + "/" + bookingEntity.getId()))
         .andDo(print())
@@ -122,7 +126,7 @@ class BookingControllerTest {
         .andExpect(content().json(expectedBookingJson));
   }
 
-  @Disabled("in progress")
+  @Disabled("returns 400 but not the error message")
   @Test
   void addBooking_tooEarly() throws Exception {
     final Booking booking = Fixtures.createTooEarlyBooking();
@@ -134,12 +138,13 @@ class BookingControllerTest {
         .andExpect(content().string(containsString("The campsite can be reserved minimum 1 day(s) ahead of arrival")));
   }
 
-  @Disabled("in progress")
+  @Disabled("Throws an exception instead of returns 409")
   @Test
   void addBooking_notAvailable() throws Exception {
-    final Booking booking = Fixtures.createTooEarlyBooking();
+    final Booking booking = Fixtures.createValidBooking();
     final String bookingJson = objectMapper.writeValueAsString(booking);
-    when(bookingDateRepository.findAllDatesFastBetween(any(), any()))
+    // A date within the booking dates is already booked
+    when(bookingDateRepository.findAllDatesBetween(any(), any()))
         .thenReturn(Stream.of(BookingDate.builder().date(booking.getArrivalDate()).build()));
     mockMvc.perform(post(BASE_PATH).contentType(MediaType.APPLICATION_JSON).content(bookingJson))
         .andDo(print())
@@ -181,7 +186,7 @@ class BookingControllerTest {
   @Test
   void getAvailabilitiesBetween_1Booking() throws Exception {
     final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-01-29", 2);
-    when(bookingDateRepository.findAllDatesFastBetween(any(), any())).thenReturn(bookingDates);
+    when(bookingDateRepository.fastFindAllDatesBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
         .queryParam("end", "2021-02-03"))
@@ -196,7 +201,7 @@ class BookingControllerTest {
     final Stream<BookingDate> bookingDates = Stream.concat(
         Fixtures.bookingDates("2021-01-29", 2),
         Fixtures.bookingDates("2021-02-01", 1));
-    when(bookingDateRepository.findAllDatesFastBetween(any(), any())).thenReturn(bookingDates);
+    when(bookingDateRepository.fastFindAllDatesBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
         .queryParam("end", "2021-02-03"))
@@ -209,7 +214,7 @@ class BookingControllerTest {
   @Test
   void getAvailabilitiesBetween_1Booking_overlapStartDate() throws Exception {
     final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-01-27", 3);
-    when(bookingDateRepository.findAllDatesFastBetween(any(), any())).thenReturn(bookingDates);
+    when(bookingDateRepository.fastFindAllDatesBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
         .queryParam("end", "2021-02-03"))
@@ -222,7 +227,7 @@ class BookingControllerTest {
   @Test
   void getAvailabilitiesBetween_1Booking_overlapEndDate() throws Exception {
     final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-02-02", 3);
-    when(bookingDateRepository.findAllDatesFastBetween(any(), any())).thenReturn(bookingDates);
+    when(bookingDateRepository.fastFindAllDatesBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
         .queryParam("end", "2021-02-03"))

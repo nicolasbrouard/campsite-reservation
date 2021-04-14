@@ -3,7 +3,6 @@ package com.upgrade.interview.challenge.campsitereservation;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Utils {
   /**
@@ -17,8 +16,7 @@ public class Utils {
     if (startInclusive.isAfter(endExclusive)) {
       return List.of();
     }
-    final Stream<LocalDate> localDateStream = startInclusive.datesUntil(endExclusive);
-    return localDateStream.collect(Collectors.toList());
+    return startInclusive.datesUntil(endExclusive).collect(Collectors.toList());
   }
 
   private Utils() {

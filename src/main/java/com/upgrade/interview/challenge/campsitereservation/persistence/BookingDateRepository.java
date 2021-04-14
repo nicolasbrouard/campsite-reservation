@@ -12,10 +12,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BookingDateRepository extends JpaRepository<BookingDate, LocalDate> {
-  @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @Query("select d from #{#entityName} d where d.date >= ?1 and d.date < ?2")
+
+  String QUERY_FIND_DATES_BETWEEN = "select d from #{#entityName} d where d.date >= ?1 and d.date < ?2";
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE) // Use select for update
+  @Query(QUERY_FIND_DATES_BETWEEN)
   Stream<BookingDate> findAllDatesBetween(LocalDate startInclusive, LocalDate endExclusive);
 
-  @Query("select d from #{#entityName} d where d.date >= ?1 and d.date < ?2")
-  Stream<BookingDate> findAllDatesFastBetween(LocalDate startInclusive, LocalDate endExclusive);
+  @Query(QUERY_FIND_DATES_BETWEEN)
+  Stream<BookingDate> fastFindAllDatesBetween(LocalDate startInclusive, LocalDate endExclusive);
 }

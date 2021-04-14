@@ -86,5 +86,6 @@ public class BookingController {
   public void deleteBooking(@PathVariable long id) {
     log.info("Delete booking {}", id);
     bookingService.deleteById(id);
+    // TODO catch EmptyResultDataAccessException
   }
 }
