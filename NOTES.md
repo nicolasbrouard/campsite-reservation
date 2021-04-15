@@ -11,12 +11,12 @@
 
 ```
 GET /availabilities startDate endDate -> list of days available
-POST /bookings email fullname arrivalDate departureDate -> SUCCESS (:id) / REFUSED
-PUT /bookings/:id email fullname arrivalDate departureDate -> SUCCESS (:id) / REFUSED
-DELETE /bookings/:id
+POST /bookings email fullname arrivalDate departureDate -> OK (:id) / REFUSED
+PUT /bookings/:id email fullname arrivalDate departureDate -> OK (:id) / REFUSED
+DELETE /bookings/:id -> OK / NOT_FOUND
 ```
 
-## More endpoints
+## More CRUD endpoints
 
 ```
 GET /bookings

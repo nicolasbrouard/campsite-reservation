@@ -1,14 +1,14 @@
 package com.upgrade.interview.challenge.campsitereservation.rest;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.upgrade.interview.challenge.campsitereservation.exception.BadRequestException;
+import com.upgrade.interview.challenge.campsitereservation.exception.BookingNotFoundException;
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEntity;
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingService;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +48,10 @@ public class BookingController {
   }
 
   @GetMapping(path = BASE_PATH + "/{id}")
-  public ResponseEntity<Booking> getBooking(@PathVariable long id) {
-    return ResponseEntity.of(bookingService.findById(id).map(Booking::createFrom));
+  public Booking getBooking(@PathVariable long id) {
+    return bookingService.findById(id)
+        .map(Booking::createFrom)
+        .orElseThrow(() -> new BookingNotFoundException(id));
   }
 
   @GetMapping(path = BASE_AVAILABLE_PATH)
@@ -62,9 +66,10 @@ public class BookingController {
       end = start.plusMonths(1);
     }
     if (start.isAfter(end)) {
-      throw new IllegalArgumentException("start after end"); // TODO return 400
+      throw new BadRequestException(
+          MessageFormat.format("Start date {0} is after end date {1}", start, end));
     }
-    log.info("get availabilities between {} and {}", start, end);
+    log.info("Get availabilities between {} and {}", start, end);
     return bookingService.getAvailabilities(start, end);
   }
 
@@ -77,7 +82,8 @@ public class BookingController {
   @PutMapping(path = BASE_PATH + "/{id}")
   public Booking updateBooking(@PathVariable long id, @Valid @RequestBody Booking booking) {
     log.info("Update booking {} with {}", id, booking);
-    final BookingEntity oldBookingEntity = bookingService.findById(id).orElseThrow(NoSuchElementException::new);// TODO
+    final BookingEntity oldBookingEntity = bookingService.findById(id)
+        .orElseThrow(() -> new BookingNotFoundException(id));
     final BookingEntity newBookingEntity = BookingEntity.createFrom(booking);
     return Booking.createFrom(bookingService.update(oldBookingEntity, newBookingEntity));
   }
@@ -85,7 +91,10 @@ public class BookingController {
   @DeleteMapping(path = BASE_PATH + "/{id}")
   public void deleteBooking(@PathVariable long id) {
     log.info("Delete booking {}", id);
-    bookingService.deleteById(id);
-    // TODO catch EmptyResultDataAccessException
+    try {
+      bookingService.deleteById(id);
+    } catch (EmptyResultDataAccessException e) {
+      throw new BookingNotFoundException(id);
+    }
   }
 }

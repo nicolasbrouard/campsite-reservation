@@ -60,7 +60,15 @@ class BookingServiceTest {
 
   @Test
   void update() {
-    // TODO
+    final BookingEntity oldBookingEntity = Fixtures.createBookingEntity();
+    final BookingEntity newBookingEntity = Fixtures.createAnotherBookingEntity();
+
+    final BookingEntity updatedBookingEntity = bookingService.update(oldBookingEntity, newBookingEntity);
+
+    assertThat(bookingRepository.findById(updatedBookingEntity.getId()))
+        .get().usingRecursiveComparison().ignoringFields("id", "version").isEqualTo(newBookingEntity);
+    assertThat(bookingRepository.findById(updatedBookingEntity.getId())).get().isEqualTo(updatedBookingEntity);
+    assertThat(bookingDateRepository.findAll()).containsExactlyElementsOf(newBookingEntity.bookingDates());
   }
 
   @Test

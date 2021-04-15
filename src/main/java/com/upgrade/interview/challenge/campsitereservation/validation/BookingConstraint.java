@@ -14,7 +14,7 @@ import javax.validation.Payload;
 @Target( { ElementType.METHOD, ElementType.FIELD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BookingConstraint {
-  String message() default "Invalid phone number";
+  String message() default "The booking does not respect the constraints";
   Class<?>[] groups() default {};
   Class<? extends Payload>[] payload() default {};
 }

@@ -32,7 +32,7 @@ class BookingValidatorTest {
   @Mock
   private ConstraintValidatorContext context;
 
-  private static Stream<Arguments> invalid_source() {
+  private static Stream<Arguments> invalidBookingSource() {
     return Stream.of(
         Arguments.of(Fixtures.createTooEarlyBooking(), false),
         Arguments.of(Fixtures.createTooLateBooking(), false),
@@ -42,7 +42,7 @@ class BookingValidatorTest {
   }
 
   @ParameterizedTest
-  @MethodSource("invalid_source")
+  @MethodSource("invalidBookingSource")
   void testInvalid(Booking booking) {
     when(context.buildConstraintViolationWithTemplate(any()))
         .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));

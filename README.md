@@ -2,7 +2,14 @@
 
 ![workflow status badge](https://github.com/nicolasbrouard/campsite-reservation/actions/workflows/gradle.yml/badge.svg)
 
-https://github.com/nicolasbrouard/campsite-reservation/
+## Links 
+
+- [This GitHub repo](https://github.com/nicolasbrouard/campsite-reservation/)
+- [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation)
+- [Postman test](https://www.postman.com/nbrouard/workspace/camping-reservation)
+- [Swagger UI](http://34.95.46.35/swagger-ui.html) 
+
+## Description of the challenge
 
 Back-end Tech Challenge: Campsite reservation REST API service
 
@@ -21,15 +28,15 @@ To streamline the reservations a few constraints need to be in place
 - Reservations can be cancelled anytime.
 - For sake of simplicity assume the check-in & check-out time is 12:00 AM
 
-## System Requirements
+### System Requirements
 
 - The users will need to find out when the campsite is available. So the system should expose an API to provide
   information of the availability of the campsite for a given date range with the default being 1 month.
 - Provide an end point for reserving the campsite. The user will provide his/her email & full name at the time of
   reserving the campsite along with intended arrival date and departure date. Return a unique booking identifier back to
   the caller if the reservation is successful.
-- The unique booking identifier can be used to modify or cancel the reservation later on. Provide appropriate end
-  point(s) to allow modification/cancellation of an existing reservation
+- The unique booking identifier can be used to modify or cancel the reservation later on. Provide appropriate end point(
+  s) to allow modification/cancellation of an existing reservation
 - Due to the popularity of the island, there is a high likelihood of multiple users attempting to reserve the campsite
   for the same/overlapping date(s). Demonstrate with appropriate test cases that the system can gracefully handle
   concurrent requests to reserve the campsite.
@@ -37,16 +44,28 @@ To streamline the reservations a few constraints need to be in place
 - In general, the system should be able to handle large volume of requests for getting the campsite availability.
 - There are no restrictions on how reservations are stored as long as system constraints are not violated.
 
-## Notes
+### Notes
+
+Like any travel booking sites, there will likely be multiple requests coming in at the same time but there is only 1
+campsite, so you'll need to come up with a concurrency solution to handle and sort through those multiple requests. The
+things to keep in mind while you're working on the challenge are having a working and scalable concurrency solution to
+be able to handle multiple instances, good test coverage, exception handling, validations, code division, packaging,
+separation between entity and response, documentation, usage of tech like Spring Boot, Swagger, Lombok, H2, etc.
+
+## Documentation
+
+### Design notes
 
 LocalDate is used to store date of the booking.
 
-Booking from start (ex: 2021-04-14) to end (ex: 2021-04-17) means the arrival datetime is 2021-04-14 at 12:00 AM
-and the departure date is 2021-04-17 at 12:00 AM. 
+Booking from start (ex: 2021-04-14) to end (ex: 2021-04-17) means the arrival datetime is 2021-04-14 at 12:00 AM and the
+departure date is 2021-04-17 at 12:00 AM.
 
 In terms of availabilities, it means the days 14th, 15th and 16th are booked and 17th is available.
 
-## How to execute
+Everywhere, the start is included, and the end date is excluded.
+
+### How to execute
 
 ```shell
 ./gradlew bootRun
@@ -54,7 +73,7 @@ In terms of availabilities, it means the days 14th, 15th and 16th are booked and
 
 Swagger UI is embedded and available at http://localhost:8080/swagger-ui.html.
 
-## Sample requests using [httpie](https://httpie.io/)
+### Sample requests using [httpie](https://httpie.io/)
 
 ```shell
 http :8080/bookings
@@ -66,21 +85,25 @@ http -v PUT :8080/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@g
 http :8080/booking/1
 http DELETE :8080/bookings/1
 ```
- 
-## Testing with Swagger UI
+
+### Testing with Swagger UI
 
 Visit http://localhost:8080/swagger-ui.html or http://34.95.46.35/swagger-ui.html.
 
-## Testing with Postman
+### Testing with Postman
 
 The postman public workspace is https://www.postman.com/nbrouard/workspace/camping-reservation.
 
-## Deployment to Kubernetes
+### Deployment to Kubernetes
 
 When creating a release with GitHub, the workflow deploys the application, and a load balancer to Google Cloud Engine.
 
 The load balancer has an external IP which allows to access the application with a public IP.
 
-## SonarQube
+### SonarQube
 
 Static analysis of the code: https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation
+
+### H2 console
+
+http://localhost:8080/h2-console/

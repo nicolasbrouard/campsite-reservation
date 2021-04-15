@@ -65,6 +65,10 @@ public class Fixtures {
     return createBooking(LocalDate.now().plusDays(2), 0);
   }
 
+  public static Booking createBookingWithDepartureBeforeArrival() {
+    return createBooking(LocalDate.now().plusDays(2), -1);
+  }
+
   public static Stream<BookingDate> bookingDates(String startInclusive, int numberOfDays) {
     final LocalDate start = LocalDate.parse(startInclusive);
     final LocalDate end = start.plusDays(numberOfDays);

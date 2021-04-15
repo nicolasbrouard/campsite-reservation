@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.upgrade.interview.challenge.campsitereservation.Utils;
+import com.upgrade.interview.challenge.campsitereservation.exception.AlreadyBookedException;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -41,7 +42,7 @@ public class BookingService {
       log.info("Added {}", addedBookingEntity);
       return addedBookingEntity;
     } else {
-      throw new IllegalStateException("Booking dates not available");
+      throw new AlreadyBookedException("Dates " + bookingDates + " are not available");
     }
   }
 
@@ -87,7 +88,8 @@ public class BookingService {
 
   @VisibleForTesting
   void insertArtificialDelayForTestsOnly() {
-//    TimeUnit.SECONDS.sleep(1);
+    // This method is intentionally empty.
+    // It can be use in unit test to insert an artificial delay for concurrency testing.
   }
 
   private List<LocalDate> convert(Stream<BookingDate> bookingDateStream) {
