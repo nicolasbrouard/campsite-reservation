@@ -17,6 +17,10 @@ import com.upgrade.interview.challenge.campsitereservation.Fixtures;
 import com.upgrade.interview.challenge.campsitereservation.Utils;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Test the {@link BookingService}.
+ * <p>This test class uses the h2 in-memory database.</p>
+ */
 @SpringBootTest
 @Slf4j
 class BookingServiceTest {

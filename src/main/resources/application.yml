@@ -20,3 +20,42 @@ campsite:
   max-stay-in-days: 3
   max-days-ahead-of-arrival: 31
   min-days-ahead-of-arrival: 1
+
+---
+# Profile postgres
+# docker run --network host --rm --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword postgres
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: mysecretpassword
+    initialization-mode: always
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+
+---
+# Profile dev
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+---
+# Profile h2-db
+# docker run --network host --rm --name my-h2 buildo/h2database
+spring:
+  config:
+    activate:
+      on-profile: h2db
+  datasource:
+    url: jdbc:h2:tcp://localhost:9092/testdb
+    initialization-mode: always
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update

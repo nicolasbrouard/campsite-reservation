@@ -51,8 +51,8 @@ import com.upgrade.interview.challenge.campsitereservation.persistence.BookingRe
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingService;
 
 /**
- * Test the BookingController.
- * Mock the Repository classes.
+ * Test the {@link BookingController}.
+ * <p>Mock the Repository classes.</p>
  */
 @SpringBootTest
 @AutoConfigureMockMvc

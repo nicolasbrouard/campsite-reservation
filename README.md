@@ -80,9 +80,9 @@ http :8080/bookings
 http :8080/availabilities
 http -v POST :8080/bookings fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-01' departureDate='2021-05-03'
 http :8080/bookings
-http :8080/booking/1
+http :8080/bookings/1
 http -v PUT :8080/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-02' departureDate='2021-05-03'
-http :8080/booking/1
+http :8080/bookings/1
 http DELETE :8080/bookings/1
 ```
 
