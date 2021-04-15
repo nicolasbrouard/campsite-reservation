@@ -48,3 +48,31 @@ Booking
 - if empty, insert new booking
 - else REFUSED because already booked (409 conflict)
 - Commit transaction
+
+## Reservation examples
+
+```json
+[
+  {
+    "email": "Lison.brouard@gmail.com",
+    "fullname": "Lison Brouard",
+    "arrivalDate": "2021-04-17",
+    "departureDate": "2021-04-20",
+    "id": 1
+  },
+  {
+    "email": "KiwietBleuette@boutdchou.mimichou",
+    "fullname": "Kiwi et Bleuette",
+    "arrivalDate": "2021-04-28",
+    "departureDate": "2021-04-30",
+    "id": 2
+  },
+  {
+    "email": "Mirabelle@pusslt.mimichou",
+    "fullname": "Mirabelle",
+    "arrivalDate": "2021-05-08",
+    "departureDate": "2021-05-11",
+    "id": 3
+  }
+]
+```
