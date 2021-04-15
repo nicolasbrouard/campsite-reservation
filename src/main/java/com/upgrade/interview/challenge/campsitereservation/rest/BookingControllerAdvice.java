@@ -1,5 +1,6 @@
 package com.upgrade.interview.challenge.campsitereservation.rest;
 
+import java.time.DateTimeException;
 import java.util.stream.Collectors;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -40,6 +41,13 @@ public class BookingControllerAdvice {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   ErrorResponse notFoundHandler(BookingNotFoundException e) {
     return errorHandler(HttpStatus.NOT_FOUND, e);
+  }
+
+  @ResponseBody
+  @ExceptionHandler(DateTimeException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  ErrorResponse dateTimeExceptionHandler(DateTimeException e) {
+    return errorHandler(HttpStatus.BAD_REQUEST, e);
   }
 
   @ResponseBody
