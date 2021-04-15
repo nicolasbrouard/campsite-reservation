@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.upgrade.interview.challenge.campsitereservation.exception.AlreadyBookedException;
 import com.upgrade.interview.challenge.campsitereservation.exception.BadRequestException;
 import com.upgrade.interview.challenge.campsitereservation.exception.BookingNotFoundException;
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEntity;
@@ -75,8 +77,12 @@ public class BookingController {
 
   @PostMapping(path = BASE_PATH)
   public Booking addBooking(@Valid @RequestBody Booking booking) {
-    log.info("Add booking {}", booking);
-    return Booking.createFrom(bookingService.add(BookingEntity.createFrom(booking)));
+    try {
+      log.info("Add booking {}", booking);
+      return Booking.createFrom(bookingService.add(BookingEntity.createFrom(booking)));
+    } catch (CannotAcquireLockException e) {
+      throw new AlreadyBookedException("Dates are not available");
+    }
   }
 
   @PutMapping(path = BASE_PATH + "/{id}")

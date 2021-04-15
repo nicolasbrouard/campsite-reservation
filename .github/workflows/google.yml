@@ -9,7 +9,7 @@ env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: autopilot-cluster-1
   GKE_ZONE: northamerica-northeast1
-  DEPLOYMENT_NAME: campsite-reservation
+  RELEASE_NAME: campsite-reservation
   IMAGE: campsite-reservation
 
 jobs:
@@ -85,9 +85,6 @@ jobs:
 
       - name: Deploy
         run: |-
-          kubectl create deployment $DEPLOYMENT_NAME --image=gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA --dry-run=client -o yaml > deployment.yaml
-          kubectl apply -f deployment.yaml
-          kubectl rollout status deployment/$DEPLOYMENT_NAME
-          kubectl create service loadbalancer $DEPLOYMENT_NAME --tcp=80:8080 --dry-run=client -o yaml > service.yaml
-          kubectl apply -f service.yaml
-          kubectl get services -o wide
+          helm upgrade --install $RELEASE_NAME src/main/helm --atomic --timeout 5m \
+            --set image.repository=gcr.io/$PROJECT_ID/$IMAGE \
+            --set image.tag=$GITHUB_SHA
