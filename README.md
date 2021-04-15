@@ -7,7 +7,7 @@
 - [This GitHub repo](https://github.com/nicolasbrouard/campsite-reservation/)
 - [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation)
 - [Postman test](https://www.postman.com/nbrouard/workspace/camping-reservation)
-- [Swagger UI](http://34.95.46.35/swagger-ui.html) 
+- [Swagger UI](http://34.95.52.30/swagger-ui.html) 
 
 ## Description of the challenge
 
@@ -88,11 +88,19 @@ http DELETE :8080/bookings/1
 
 ### Testing with Swagger UI
 
-Visit http://localhost:8080/swagger-ui.html or http://34.95.46.35/swagger-ui.html.
+Visit http://localhost:8080/swagger-ui.html or http://34.95.52.30/swagger-ui.html.
 
 ### Testing with Postman
 
 The postman public workspace is https://www.postman.com/nbrouard/workspace/camping-reservation.
+
+### Deployment with Helm
+
+```shell
+helm upgrade --install campsite-reservation src/main/helm/ \
+  --set image.repository=gcr.io/nbrouard-campsite-reservation/campsite-reservation \
+  --set image.tag=5c2c7d9b4d71a89d7e7c2a250c3a59dd4627b4d5
+```
 
 ### Deployment to Kubernetes
 
