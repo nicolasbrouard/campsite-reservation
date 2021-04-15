@@ -6,11 +6,13 @@ import java.util.stream.Collectors;
 
 public class Utils {
   /**
-   * Returns a list of date between startInclusive and endExclusive or an empty list.
-   * Example: datesBetween('2021-04-22', '2021-04-25') returns:
-   * - '2021-04-22'
-   * - '2021-04-23'
-   * - '2021-04-24'
+   * Returns a list of dates between startInclusive and endExclusive or an empty list.
+   * <p>Example:</p>
+   * <pre>datesBetween('2021-04-22', '2021-04-25') returns:
+   *  - '2021-04-22'
+   *  - '2021-04-23'
+   *  - '2021-04-24'</pre>
+   * @return a list of dates.
    */
   public static List<LocalDate> datesBetween(LocalDate startInclusive, LocalDate endExclusive) {
     if (startInclusive.isAfter(endExclusive)) {
