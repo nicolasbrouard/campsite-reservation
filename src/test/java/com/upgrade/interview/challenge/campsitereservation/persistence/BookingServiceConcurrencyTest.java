@@ -88,7 +88,7 @@ class BookingServiceConcurrencyTest {
     TimeUnit.MILLISECONDS.sleep(DELAY / 2);
 
     // Creation of the second conflicting entity (should fail)
-    final var future2 = executor.submit(() -> bookingService.add(bookingEntity1));
+    final var future2 = executor.submit(() -> bookingService.add(bookingEntity2));
 
     executor.shutdown();
     assertThat(executor.awaitTermination(DELAY * 4, TimeUnit.MILLISECONDS)).isTrue();

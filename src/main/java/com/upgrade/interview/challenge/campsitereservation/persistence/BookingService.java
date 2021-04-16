@@ -32,12 +32,15 @@ public class BookingService {
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public BookingEntity add(BookingEntity bookingEntity) {
     log.info("Adding {}", bookingEntity);
-    final var bookingDates = convert(
-        bookingDateRepository.findAllDatesBetween(bookingEntity.getArrivalDate(), bookingEntity.getDepartureDate()));
+    // Could throw CannotAcquireLockException
+    final var bookingDatesBetween = bookingDateRepository.findAllDatesBetween(bookingEntity.getArrivalDate(), bookingEntity.getDepartureDate());
+    final var bookingDates = convert(bookingDatesBetween);
     if (bookingDates.isEmpty()) {
-      insertArtificialDelayForTestsOnly();
       log.error("Saving {}", bookingEntity);
+      insertArtificialDelayForTestsOnly();
+      // Could throw DataIntegrityViolationException (primary key constraint)
       bookingDateRepository.saveAll(bookingEntity.bookingDates());
+      // Could fail because of version update ObjectOptimisticLockingFailureException
       final var addedBookingEntity = bookingRepository.save(bookingEntity);
       log.info("Added {}", addedBookingEntity);
       return addedBookingEntity;
@@ -52,7 +55,6 @@ public class BookingService {
     newBookingEntity.setId(oldBookingEntity.getId());
     newBookingEntity.setVersion(oldBookingEntity.getVersion());
     bookingDateRepository.deleteAll(oldBookingEntity.bookingDates());
-    insertArtificialDelayForTestsOnly();
     return add(newBookingEntity);
   }
 
