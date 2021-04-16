@@ -13,7 +13,7 @@ plugins {
 group = 'com.upgrade.interview.challenge'
 version = '1.0-SNAPSHOT'
 description = 'Back-end Tech Challenge: Campsite reservation REST API service'
-sourceCompatibility = '11'
+sourceCompatibility = '16'
 
 sonarqube {
     properties {

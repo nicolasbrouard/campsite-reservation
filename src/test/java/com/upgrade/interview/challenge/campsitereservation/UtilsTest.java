@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,7 +31,7 @@ class UtilsTest {
     final List<LocalDate> expectedOutput = output
         .stream()
         .map(LocalDate::parse)
-        .collect(Collectors.toList());
+        .toList();
 
     final List<LocalDate> localDates = Utils.datesBetween(start, end);
 

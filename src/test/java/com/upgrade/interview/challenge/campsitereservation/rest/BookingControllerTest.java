@@ -21,7 +21,6 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -80,7 +79,7 @@ class BookingControllerTest {
   @Test
   void getBookingList_success() throws Exception {
     final List<BookingEntity> bookingEntityList = List.of(Fixtures.createBookingEntityWithId());
-    final List<Booking> bookingList = bookingEntityList.stream().map(Booking::createFrom).collect(Collectors.toList());
+    final List<Booking> bookingList = bookingEntityList.stream().map(Booking::createFrom).toList();
     final String bookingListJson = objectMapper.writeValueAsString(bookingList);
     when(bookingRepository.findAll(any(Sort.class))).thenReturn(bookingEntityList);
     mockMvc.perform(get(BASE_PATH))
