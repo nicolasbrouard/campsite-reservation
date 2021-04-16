@@ -2,7 +2,6 @@ package com.upgrade.interview.challenge.campsitereservation.persistence;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -57,6 +56,6 @@ public class BookingEntity {
     return Utils.datesBetween(arrivalDate, departureDate)
         .stream()
         .map(localDate -> BookingDate.builder().date(localDate).build())
-        .collect(Collectors.toList());
+        .toList();
   }
 }

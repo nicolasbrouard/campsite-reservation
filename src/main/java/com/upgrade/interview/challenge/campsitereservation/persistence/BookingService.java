@@ -3,7 +3,6 @@ package com.upgrade.interview.challenge.campsitereservation.persistence;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.data.domain.Sort;
@@ -95,6 +94,6 @@ public class BookingService {
   private List<LocalDate> convert(Stream<BookingDate> bookingDateStream) {
     return bookingDateStream
         .map(BookingDate::getDate)
-        .collect(Collectors.toList());
+        .toList();
   }
 }
