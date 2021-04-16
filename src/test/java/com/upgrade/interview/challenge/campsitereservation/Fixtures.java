@@ -18,7 +18,7 @@ public class Fixtures {
   }
 
   public static BookingEntity createBookingEntityWithId(LocalDate arrivalDate, int numberOfDays) {
-    final BookingEntity bookingEntity = createBookingEntity(arrivalDate, numberOfDays);
+    final var bookingEntity = createBookingEntity(arrivalDate, numberOfDays);
     bookingEntity.setId(1);
     bookingEntity.setVersion(0);
     return bookingEntity;
@@ -70,8 +70,8 @@ public class Fixtures {
   }
 
   public static Stream<BookingDate> bookingDates(String startInclusive, int numberOfDays) {
-    final LocalDate start = LocalDate.parse(startInclusive);
-    final LocalDate end = start.plusDays(numberOfDays);
+    final var start = LocalDate.parse(startInclusive);
+    final var end = start.plusDays(numberOfDays);
     return start.datesUntil(end)
         .map(date -> BookingDate.builder().date(date).build());
   }

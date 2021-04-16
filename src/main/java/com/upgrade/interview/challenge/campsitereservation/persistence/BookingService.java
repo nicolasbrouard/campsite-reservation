@@ -32,13 +32,13 @@ public class BookingService {
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public BookingEntity add(BookingEntity bookingEntity) {
     log.info("Adding {}", bookingEntity);
-    final List<LocalDate> bookingDates = convert(
+    final var bookingDates = convert(
         bookingDateRepository.findAllDatesBetween(bookingEntity.getArrivalDate(), bookingEntity.getDepartureDate()));
     if (bookingDates.isEmpty()) {
       insertArtificialDelayForTestsOnly();
       log.error("Saving {}", bookingEntity);
       bookingDateRepository.saveAll(bookingEntity.bookingDates());
-      final BookingEntity addedBookingEntity = bookingRepository.save(bookingEntity);
+      final var addedBookingEntity = bookingRepository.save(bookingEntity);
       log.info("Added {}", addedBookingEntity);
       return addedBookingEntity;
     } else {
@@ -79,8 +79,8 @@ public class BookingService {
   @Transactional(readOnly = true)
   public List<LocalDate> getAvailabilities(LocalDate startInclusive, LocalDate endExclusive) {
     log.info("Get availabilities between {} and {}", startInclusive, endExclusive);
-    final List<LocalDate> availableDates = Utils.datesBetween(startInclusive, endExclusive);
-    final List<LocalDate> reservedDates = convert(
+    final var availableDates = Utils.datesBetween(startInclusive, endExclusive);
+    final var reservedDates = convert(
         bookingDateRepository.fastFindAllDatesBetween(startInclusive, endExclusive));
     availableDates.removeAll(reservedDates);
     return availableDates;

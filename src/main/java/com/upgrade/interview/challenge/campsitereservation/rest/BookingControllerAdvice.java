@@ -71,7 +71,7 @@ public class BookingControllerAdvice {
   @ExceptionHandler(BindException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   ErrorResponse constraintViolationHandler(BindException e) {
-    final String message = e.getBindingResult().getAllErrors()
+    final var message = e.getBindingResult().getAllErrors()
         .stream()
         .map(DefaultMessageSourceResolvable::getDefaultMessage)
         .collect(Collectors.joining(". "))

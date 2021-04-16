@@ -106,9 +106,9 @@ public class BookingController {
   @PutMapping(path = BASE_PATH + "/{id}")
   public Booking updateBooking(@PathVariable long id, @Valid @RequestBody Booking booking) {
     log.info("Update booking {} with {}", id, booking);
-    final BookingEntity oldBookingEntity = bookingService.findById(id)
+    final var oldBookingEntity = bookingService.findById(id)
         .orElseThrow(() -> new BookingNotFoundException(id));
-    final BookingEntity newBookingEntity = BookingEntity.createFrom(booking);
+    final var newBookingEntity = BookingEntity.createFrom(booking);
     return Booking.createFrom(bookingService.update(oldBookingEntity, newBookingEntity));
   }
 

@@ -79,9 +79,9 @@ class BookingControllerTest {
 
   @Test
   void getBookingList_success() throws Exception {
-    final List<BookingEntity> bookingEntityList = List.of(Fixtures.createBookingEntityWithId());
-    final List<Booking> bookingList = bookingEntityList.stream().map(Booking::createFrom).collect(Collectors.toList());
-    final String bookingListJson = objectMapper.writeValueAsString(bookingList);
+    final var bookingEntityList = List.of(Fixtures.createBookingEntityWithId());
+    final var bookingList = bookingEntityList.stream().map(Booking::createFrom).collect(Collectors.toList());
+    final var bookingListJson = objectMapper.writeValueAsString(bookingList);
     when(bookingRepository.findAll(any(Sort.class))).thenReturn(bookingEntityList);
     mockMvc.perform(get(BASE_PATH))
         .andDo(print())
@@ -93,7 +93,7 @@ class BookingControllerTest {
   @Test
   void getBookingList_empty() throws Exception {
     final List<BookingEntity> bookingEntityList = List.of();
-    final String bookingListJson = objectMapper.writeValueAsString(bookingEntityList);
+    final var bookingListJson = objectMapper.writeValueAsString(bookingEntityList);
     when(bookingRepository.findAll(any(Sort.class))).thenReturn(bookingEntityList);
     mockMvc.perform(get(BASE_PATH))
         .andDo(print())
@@ -104,8 +104,8 @@ class BookingControllerTest {
 
   @Test
   void getBooking_success() throws Exception {
-    final BookingEntity bookingEntity = Fixtures.createBookingEntityWithId();
-    final String bookingJson = objectMapper.writeValueAsString(Booking.createFrom(bookingEntity));
+    final var bookingEntity = Fixtures.createBookingEntityWithId();
+    final var bookingJson = objectMapper.writeValueAsString(Booking.createFrom(bookingEntity));
     when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.of(bookingEntity));
     mockMvc.perform(get(BASE_PATH + "/" + bookingEntity.getId()))
         .andDo(print())
@@ -116,7 +116,7 @@ class BookingControllerTest {
 
   @Test
   void getBooking_unknown() throws Exception {
-    final BookingEntity bookingEntity = Fixtures.createBookingEntityWithId();
+    final var bookingEntity = Fixtures.createBookingEntityWithId();
     when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.empty());
     mockMvc.perform(get(BASE_PATH + "/" + bookingEntity.getId()))
         .andDo(print())
@@ -127,10 +127,10 @@ class BookingControllerTest {
 
   @Test
   void addBooking_success() throws Exception {
-    final Booking booking = Fixtures.createValidBooking();
-    final String bookingJson = objectMapper.writeValueAsString(booking);
-    final BookingEntity expectedBookingEntity = BookingEntity.createFrom(booking);
-    final String expectedBookingJson = objectMapper.writeValueAsString(booking);
+    final var booking = Fixtures.createValidBooking();
+    final var bookingJson = objectMapper.writeValueAsString(booking);
+    final var expectedBookingEntity = BookingEntity.createFrom(booking);
+    final var expectedBookingJson = objectMapper.writeValueAsString(booking);
     when(bookingRepository.save(expectedBookingEntity)).then(returnsFirstArg());
     mockMvc.perform(post(BASE_PATH).contentType(MediaType.APPLICATION_JSON).content(bookingJson))
         .andDo(print())
@@ -152,7 +152,7 @@ class BookingControllerTest {
   @ParameterizedTest
   @MethodSource("addBooking_invalid_source")
   void addBooking_invalid(Booking booking, String message) throws Exception {
-    final String bookingJson = objectMapper.writeValueAsString(booking);
+    final var bookingJson = objectMapper.writeValueAsString(booking);
     mockMvc.perform(post(BASE_PATH).contentType(MediaType.APPLICATION_JSON).content(bookingJson))
         .andDo(print())
         .andExpect(status().isBadRequest())
@@ -162,8 +162,8 @@ class BookingControllerTest {
 
   @Test
   void addBooking_internalServerError() throws Exception {
-    final Booking booking = Fixtures.createValidBooking();
-    final String bookingJson = objectMapper.writeValueAsString(booking);
+    final var booking = Fixtures.createValidBooking();
+    final var bookingJson = objectMapper.writeValueAsString(booking);
     when(bookingRepository.save(any())).thenThrow(new RuntimeException("exception message"));
     mockMvc.perform(post(BASE_PATH).contentType(MediaType.APPLICATION_JSON).content(bookingJson))
         .andDo(print())
@@ -174,10 +174,10 @@ class BookingControllerTest {
 
   @Test
   void addBooking_notAvailable() throws Exception {
-    final Booking booking = Fixtures.createValidBooking();
-    final String bookingJson = objectMapper.writeValueAsString(booking);
+    final var booking = Fixtures.createValidBooking();
+    final var bookingJson = objectMapper.writeValueAsString(booking);
     // A date within the booking dates is already booked
-    final LocalDate alreadyBookedDate = booking.getArrivalDate();
+    final var alreadyBookedDate = booking.getArrivalDate();
     when(bookingDateRepository.findAllDatesBetween(any(), any()))
         .thenReturn(Stream.of(BookingDate.builder().date(alreadyBookedDate).build()));
     mockMvc.perform(post(BASE_PATH).contentType(MediaType.APPLICATION_JSON).content(bookingJson))
@@ -190,10 +190,10 @@ class BookingControllerTest {
 
   @Test
   void updateBooking() throws Exception {
-    final Booking oldBooking = Fixtures.createBooking(LocalDate.now().plusDays(2), 2);
-    final Booking newBooking = Fixtures.createBooking(LocalDate.now().plusDays(2), 3);
-    final String bookingJson = objectMapper.writeValueAsString(newBooking);
-    final BookingEntity expectedBookingEntity = BookingEntity.createFrom(newBooking);
+    final var oldBooking = Fixtures.createBooking(LocalDate.now().plusDays(2), 2);
+    final var newBooking = Fixtures.createBooking(LocalDate.now().plusDays(2), 3);
+    final var bookingJson = objectMapper.writeValueAsString(newBooking);
+    final var expectedBookingEntity = BookingEntity.createFrom(newBooking);
     when(bookingRepository.findById(any())).thenReturn(Optional.of(BookingEntity.createFrom(oldBooking)));
     when(bookingRepository.save(expectedBookingEntity)).then(returnsFirstArg());
     mockMvc.perform(put(BASE_PATH + "/1").contentType(MediaType.APPLICATION_JSON).content(bookingJson))
@@ -233,7 +233,7 @@ class BookingControllerTest {
 
   @Test
   void getAvailabilitiesBetween_1Booking() throws Exception {
-    final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-01-29", 2);
+    final var bookingDates = Fixtures.bookingDates("2021-01-29", 2);
     when(bookingDateRepository.fastFindAllDatesBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
@@ -246,7 +246,7 @@ class BookingControllerTest {
 
   @Test
   void getAvailabilitiesBetween_2Bookings() throws Exception {
-    final Stream<BookingDate> bookingDates = Stream.concat(
+    final var bookingDates = Stream.concat(
         Fixtures.bookingDates("2021-01-29", 2),
         Fixtures.bookingDates("2021-02-01", 1));
     when(bookingDateRepository.fastFindAllDatesBetween(any(), any())).thenReturn(bookingDates);
@@ -261,7 +261,7 @@ class BookingControllerTest {
 
   @Test
   void getAvailabilitiesBetween_1Booking_overlapStartDate() throws Exception {
-    final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-01-27", 3);
+    final var bookingDates = Fixtures.bookingDates("2021-01-27", 3);
     when(bookingDateRepository.fastFindAllDatesBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
@@ -274,7 +274,7 @@ class BookingControllerTest {
 
   @Test
   void getAvailabilitiesBetween_1Booking_overlapEndDate() throws Exception {
-    final Stream<BookingDate> bookingDates = Fixtures.bookingDates("2021-02-02", 3);
+    final var bookingDates = Fixtures.bookingDates("2021-02-02", 3);
     when(bookingDateRepository.fastFindAllDatesBetween(any(), any())).thenReturn(bookingDates);
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", "2021-01-28")
@@ -287,7 +287,7 @@ class BookingControllerTest {
 
   @Test
   void getAvailabilitiesBetween_no_param() throws Exception {
-    final ArgumentCaptor<LocalDate> argumentCaptor = ArgumentCaptor.forClass(LocalDate.class);
+    final var argumentCaptor = ArgumentCaptor.forClass(LocalDate.class);
 
     mockMvc.perform(get(BASE_AVAILABLE_PATH))
         .andDo(print())
@@ -300,9 +300,9 @@ class BookingControllerTest {
 
   @Test
   void getAvailabilitiesBetween_start_param() throws Exception {
-    final ArgumentCaptor<LocalDate> argumentCaptor = ArgumentCaptor.forClass(LocalDate.class);
-    final String start = "2021-01-28";
-    final LocalDate startDate = LocalDate.parse(start);
+    final var argumentCaptor = ArgumentCaptor.forClass(LocalDate.class);
+    final var start = "2021-01-28";
+    final var startDate = LocalDate.parse(start);
 
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("start", start))
@@ -316,8 +316,8 @@ class BookingControllerTest {
 
   @Test
   void getAvailabilitiesBetween_end_param() throws Exception {
-    final ArgumentCaptor<LocalDate> argumentCaptor = ArgumentCaptor.forClass(LocalDate.class);
-    final LocalDate endDate = LocalDate.now().plusDays(5);
+    final var argumentCaptor = ArgumentCaptor.forClass(LocalDate.class);
+    final var endDate = LocalDate.now().plusDays(5);
 
     mockMvc.perform(get(BASE_AVAILABLE_PATH)
         .queryParam("end", endDate.toString()))

@@ -3,7 +3,6 @@ package com.upgrade.interview.challenge.campsitereservation.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -60,10 +59,10 @@ class BookingServiceConcurrentTest {
 
   @Test
   void addWithConcurrency() throws Exception {
-    final BookingEntity bookingEntity1 = Fixtures.createBookingEntity();
-    final BookingEntity bookingEntity2 = createOverlappedBookingEntity(bookingEntity1);
+    final var bookingEntity1 = Fixtures.createBookingEntity();
+    final var bookingEntity2 = createOverlappedBookingEntity(bookingEntity1);
     insertDelayInsideLockingSection();
-    final ExecutorService executor = Executors.newFixedThreadPool(2);
+    final var executor = Executors.newFixedThreadPool(2);
 
     executor.execute(() -> bookingService.add(bookingEntity1));
     TimeUnit.MILLISECONDS.sleep(DELAY / 2);

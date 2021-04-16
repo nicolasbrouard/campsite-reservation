@@ -27,14 +27,14 @@ class UtilsTest {
   @ParameterizedTest
   @MethodSource("datesBetweenSource")
   void datesBetween(String startInclusive, String endExclusive, List<String> output) {
-    final LocalDate start = LocalDate.parse(startInclusive);
-    final LocalDate end = LocalDate.parse(endExclusive);
-    final List<LocalDate> expectedOutput = output
+    final var start = LocalDate.parse(startInclusive);
+    final var end = LocalDate.parse(endExclusive);
+    final var expectedOutput = output
         .stream()
         .map(LocalDate::parse)
         .collect(Collectors.toList());
 
-    final List<LocalDate> localDates = Utils.datesBetween(start, end);
+    final var localDates = Utils.datesBetween(start, end);
 
     assertThat(localDates).containsAnyElementsOf(expectedOutput);
   }

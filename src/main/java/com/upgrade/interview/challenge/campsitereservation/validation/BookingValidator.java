@@ -27,12 +27,12 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
 
   @Override
   public boolean isValid(Booking booking, ConstraintValidatorContext context) {
-    final LocalDate arrivalDate = booking.getArrivalDate();
-    final LocalDate departureDate = booking.getDepartureDate();
-    final long daysAheadOfArrival = DAYS.between(LocalDate.now(), arrivalDate);
+    final var arrivalDate = booking.getArrivalDate();
+    final var departureDate = booking.getDepartureDate();
+    final var daysAheadOfArrival = DAYS.between(LocalDate.now(), arrivalDate);
 
     context.disableDefaultConstraintViolation();
-    boolean valid = true;
+    var valid = true;
 
     // Arrival date should be before departure date
     if (departureDate.isBefore(arrivalDate)) {
@@ -43,7 +43,7 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
     }
 
     // The campsite can be reserved for min 1 days.
-    final long stayInDays = DAYS.between(arrivalDate, departureDate);
+    final var stayInDays = DAYS.between(arrivalDate, departureDate);
     if (stayInDays < 1) {
       context.buildConstraintViolationWithTemplate(
           "The campsite can be reserved for minimum 1 day")
@@ -52,7 +52,7 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
     }
 
     // The campsite can be reserved for max 3 days.
-    final long maxStayInDays = configuration.getMaxStayInDays();
+    final var maxStayInDays = configuration.getMaxStayInDays();
     if (stayInDays > maxStayInDays) {
       context.buildConstraintViolationWithTemplate(
           "The campsite can be reserved for maximum " + maxStayInDays + " days")
@@ -61,7 +61,7 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
     }
 
     // The campsite can be reserved minimum 1 day(s) ahead of arrival
-    final long minDaysAheadOfArrival = configuration.getMinDaysAheadOfArrival();
+    final var minDaysAheadOfArrival = configuration.getMinDaysAheadOfArrival();
     if (daysAheadOfArrival < minDaysAheadOfArrival) {
       context.buildConstraintViolationWithTemplate(
           "The campsite can be reserved minimum " + minDaysAheadOfArrival + " day(s) ahead of arrival")
@@ -70,7 +70,7 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
     }
 
     // The campsite can be reserved up to 1 month in advance.
-    final long maxDaysAheadOfArrival = configuration.getMaxDaysAheadOfArrival();
+    final var maxDaysAheadOfArrival = configuration.getMaxDaysAheadOfArrival();
     if (daysAheadOfArrival > maxDaysAheadOfArrival) {
       context.buildConstraintViolationWithTemplate(
           "The campsite can be reserved up to " + maxDaysAheadOfArrival + " day(s) in advance")
