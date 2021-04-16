@@ -57,22 +57,19 @@ Booking
     "email": "Lison.brouard@gmail.com",
     "fullname": "Lison Brouard",
     "arrivalDate": "2021-04-17",
-    "departureDate": "2021-04-20",
-    "id": 1
+    "departureDate": "2021-04-20"
   },
   {
     "email": "KiwietBleuette@boutdchou.mimichou",
     "fullname": "Kiwi et Bleuette",
     "arrivalDate": "2021-04-28",
-    "departureDate": "2021-04-30",
-    "id": 2
+    "departureDate": "2021-04-30"
   },
   {
     "email": "Mirabelle@pusslt.mimichou",
     "fullname": "Mirabelle",
     "arrivalDate": "2021-05-08",
-    "departureDate": "2021-05-11",
-    "id": 3
+    "departureDate": "2021-05-11"
   }
 ]
 ```

@@ -47,10 +47,8 @@ public class BookingEntity {
 
   private String fullname;
 
-//  @Temporal(TemporalType.DATE)
   private LocalDate arrivalDate;
 
-//  @Temporal(TemporalType.DATE)
   private LocalDate departureDate;
 
   public List<BookingDate> bookingDates() {
