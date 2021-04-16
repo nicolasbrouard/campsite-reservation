@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "helm.fullname" . }}-test"
+  labels:
+    {{- include "helm.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command:
+        - /bin/sh
+      args:
+        - -c
+        - -e
+        - |
+          URL="http://{{ include "helm.fullname" . }}:{{ .Values.service.port }}"
+          wget -S -q "$URL/bookings"
+          wget -S -q "$URL/availabilities"
+      resources:
+        limits:
+          cpu: 250m
+          memory: 100Mi
+        requests:
+          cpu: 50m
+          memory: 50Mi
+  restartPolicy: Never

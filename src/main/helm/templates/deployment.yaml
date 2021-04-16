@@ -34,10 +34,20 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           args:
             - --spring.profiles.active=postgres
+            - --spring.datasource.url=jdbc:postgresql://{{ include "helm.fullname" . }}-postgres:{{ .Values.postgres.port }}/postgres
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /bookings
+              port: http
+            initialDelaySeconds: 120
+          readinessProbe:
+            httpGet:
+              path: /bookings
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
