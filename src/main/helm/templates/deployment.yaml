@@ -44,10 +44,13 @@ spec:
             httpGet:
               path: /bookings
               port: http
-            initialDelaySeconds: 120
+            initialDelaySeconds: 180
+            periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /bookings
               port: http
+            periodSeconds: 30
+            initialDelaySeconds: 120
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
