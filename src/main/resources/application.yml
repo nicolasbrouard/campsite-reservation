@@ -1,7 +1,7 @@
 spring:
   h2:
     console:
-      enabled: true
+      enabled: false
   datasource:
     url: jdbc:h2:mem:testdb
 #    url: jdbc:h2:file:./testdb
@@ -9,7 +9,8 @@ spring:
     password: sa
   jpa:
     show-sql: false
-
+  main:
+    lazy-initialization: true
 logging:
   level:
     web: INFO
@@ -21,6 +22,16 @@ campsite:
   max-days-ahead-of-arrival: 31
   min-days-ahead-of-arrival: 1
 
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 ---
 # Profile postgres
 # docker run --network host --rm --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword postgres
