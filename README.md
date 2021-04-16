@@ -63,7 +63,7 @@ departure date is 2021-04-17 at 12:00 AM.
 
 In terms of availabilities, it means the days 14th, 15th and 16th are booked and 17th is available.
 
-Everywhere, the start is included, and the end date is excluded.
+Everywhere, the start date is included, and the end date is excluded.
 
 ### How to execute
 
@@ -115,3 +115,31 @@ Static analysis of the code: https://sonarcloud.io/dashboard?id=nicolasbrouard_c
 ### H2 console
 
 http://localhost:8080/h2-console/
+
+### Load testing
+
+I used [Hey](https://github.com/rakyll/hey) to test the endpoint /availabilities with 2 replicas:
+
+```shell
+./hey_linux_amd64 -n 300 -c 10 http://34.95.52.30/availabilities
+
+Summary:
+Total:	3.4361 secs
+Slowest:	0.2826 secs
+Fastest:	0.0249 secs
+Average:	0.1079 secs
+Requests/sec:	87.3077
+
+Response time histogram:
+0.025 [1]	|
+0.051 [20]	|■■■■■■
+0.076 [8]	|■■
+0.102 [132]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+0.128 [84]	|■■■■■■■■■■■■■■■■■■■■■■■■■
+0.154 [16]	|■■■■■
+0.180 [13]	|■■■■
+0.205 [14]	|■■■■
+0.231 [6]	|■■
+0.257 [5]	|■■
+0.283 [1]	|
+```
