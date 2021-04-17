@@ -34,10 +34,10 @@ class BookingValidatorTest {
 
   private static Stream<Arguments> invalidBookingSource() {
     return Stream.of(
-        Arguments.of(Fixtures.createTooEarlyBooking(), false),
-        Arguments.of(Fixtures.createTooLateBooking(), false),
-        Arguments.of(Fixtures.createTooLongBooking(), false),
-        Arguments.of(Fixtures.createTooShortBooking(), false)
+        Arguments.of(Fixtures.createTooEarlyBooking()),
+        Arguments.of(Fixtures.createTooLateBooking()),
+        Arguments.of(Fixtures.createTooLongBooking()),
+        Arguments.of(Fixtures.createTooShortBooking())
     );
   }
 

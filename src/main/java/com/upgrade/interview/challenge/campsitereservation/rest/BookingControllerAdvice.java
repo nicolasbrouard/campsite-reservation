@@ -1,10 +1,11 @@
 package com.upgrade.interview.challenge.campsitereservation.rest;
 
-import java.time.DateTimeException;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.BeansException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,16 +45,29 @@ public class BookingControllerAdvice {
   }
 
   @ResponseBody
-  @ExceptionHandler(DateTimeException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  ErrorResponse dateTimeExceptionHandler(DateTimeException e) {
-    return errorHandler(HttpStatus.BAD_REQUEST, e);
-  }
-
-  @ResponseBody
   @ExceptionHandler(BadRequestException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   ErrorResponse badRequestHandler(BadRequestException e) {
+    return errorHandler(HttpStatus.BAD_REQUEST, e);
+  }
+
+  /**
+   * Error when parsing LocalDate as a property
+   */
+  @ResponseBody
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  ErrorResponse dateTimeParsingHandler(HttpMessageNotReadableException e) {
+    return errorHandler(HttpStatus.BAD_REQUEST, e);
+  }
+
+  /**
+   * Error when parsing LocalDate as a request parameter
+   */
+  @ResponseBody
+  @ExceptionHandler(BeansException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  ErrorResponse beansExceptionHandler(BeansException e) {
     return errorHandler(HttpStatus.BAD_REQUEST, e);
   }
 

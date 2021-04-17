@@ -24,22 +24,6 @@ GET /bookings/available
 GET /bookings/:id
 ```
 
-## Config
-
-- Max stay duration: 3
-- Max booking plan: 30 days
-- Min booking plan: 1 day
-
-## Data
-
-Booking
-
-- id
-- email
-- fullname
-- arrivalDate
-- departureDate
-
 ## Insertion or modification
 
 - Validate booking info -> REFUSED (400 bad request)  because too long, or too late, or too early.

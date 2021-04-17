@@ -29,6 +29,12 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
   public boolean isValid(Booking booking, ConstraintValidatorContext context) {
     final var arrivalDate = booking.getArrivalDate();
     final var departureDate = booking.getDepartureDate();
+
+    if (arrivalDate == null || departureDate == null) {
+      // null values are valid
+      return true;
+    }
+
     final var daysAheadOfArrival = DAYS.between(LocalDate.now(), arrivalDate);
 
     context.disableDefaultConstraintViolation();

@@ -37,12 +37,12 @@ public class Booking {
   @NotBlank(message = "Fullname cannot be blank")
   String fullname;
 
-  @Future(message = "arrivalDate should be in the future")
-  @NotNull(message = "arrivalDate cannot be null")
+  @Future(message = "ArrivalDate should be in the future")
+  @NotNull(message = "ArrivalDate is mandatory")
   LocalDate arrivalDate;
 
-  @Future(message = "departureDate should be in the future")
-  @NotNull(message = "departureDate cannot be null")
+  @Future(message = "DepartureDate should be in the future")
+  @NotNull(message = "DepartureDate is mandatory")
   LocalDate departureDate;
 
   long id;

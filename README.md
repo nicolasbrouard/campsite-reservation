@@ -76,6 +76,8 @@ at http://34.95.52.30/swagger-ui.html.
 - *Swagger* to document the REST API
 - *H2* to test with in-memory database
 - *Postgres* to deploy with a real database
+- *Mockito* for unit test
+- *Assertj* for the unit test assertion
 
 ### GitHub workflow
 
@@ -101,11 +103,20 @@ The main package is `com.upgrade.interview.challenge.campsitereservation`.
 #### Subpackage `persistence`
 
 Each campsite reservation is represented by an entity `BookingEntity` and managed by the interface
-`BookingRepository` (which is a `JpaRepository`). The primary key of the booking entity is the `id`.
+`BookingRepository` (which is a `JpaRepository`).
 
-Each date that is reserved, is represented by an entity `BookingDate` and managed by the interface
+The `BookingEntity` class contains the properties:
+- id (primary key)
+- version (serves as an optimistic lock value. The version is used to ensure integrity when performing the merge
+  operation and for optimistic concurrency control).
+- email
+- fullname
+- arrivalDate
+- departureDate
+
+Each date for which the campsite is reserved, is represented by an entity `BookingDate` and managed by the interface
 `BookingDateRepository` (which is also a `JpaRepository`). This is not strictly necessary, but it 
-simplifies the logic to check if a date is available. The `BookingDate` table has one column `date` which
+simplifies the logic to check if a date is available. The `BookingDate` entity has one field `date` which
 is the primary key.
 
 The class `BookingService` contains the logic of the reservation system and allows the usage of transactions.
@@ -114,6 +125,13 @@ The class `BookingService` contains the logic of the reservation system and allo
 
 The `BookingController` manages the REST API. The POJO `Booking` is used in requests and responses, in 
 addition to the class `java.time.LocalDate` which is used to represent the dates.
+
+The `Booking` class contains the properties:
+- id
+- email
+- fullname
+- arrivalDate
+- departureDate
 
 See the section [About dates](#about-dates).
 
@@ -133,7 +151,7 @@ See the section [Exception handling](#exception-handling).
 
 ### Class diagram
 
-[![](diagrams/mermaid-diagram-20210416171426.jpg)
+![Class diagram](diagrams/mermaid-diagram-20210416171426.jpg)
 
 ### About dates
 
@@ -161,68 +179,51 @@ campsite:
 
 ### Validation
 
+Input data validation is separated from the controller and the model via annotations. The annotation `@BookingConstraint`
+is applied on the Booking object, and the validation is executed by the component `BookingValidator`.
+
+Other standards validation annotations are used like `@Email`, `@Future`, `@NonBlank`, and `@NonNull`.
+
 ### Exception handling
+
+The class `BookingControllerAdvice` is a `@ControllerAdvice` that declares several exception handlers. Error are returned
+to the REST API user via a json string, and an appropriate status code.
+
+Example of json error response:
+```json
+{
+    "message": "Invalid date 'APRIL 31'",
+    "status": "BAD_REQUEST"
+}
+```
+
+HTTP status code that can be returned:
+- 404 NOT_FOUND in case a booking by id cannot be found (for example for deletion)
+- 409 CONFLICT in case a booking conflicts with another booking
+- 400 BAD_REQUEST when request parameters or request json body are invalid
+- 500 INTERNAL_SERVER_ERROR for other types of error
 
 ### Transaction and concurrency
 
 ### Scalability
 
-### Code coverage
+### Unit tests and Code coverage
 
-### How to execute
+The code is covered at 97% by unit tests. See the [SonarQube report](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation).
 
-```shell
-./gradlew bootRun
-```
+- The `BookingValidatorTest` class tests the validation of the constraints.
+- The `BookingcontrollerTest` class tests the REST API with `MockMvc`. The repository classes are mocked.
+- The `BookingServiceTest` class tests the `BookingService`, and the repository classes using an H2 in-memory database.
+- The `BookingServiceConcurrencyTest` class contains special tests for testing concurrent access, using an H2 in-memory
+  database. Test are written with an `ExecutorService` that submit 2 tasks. A delay is artificially added to make sure the second
+  task is executed in the middle of the first task. This tests guarantees that the transactions are correctly managed.
+  See the section [Transactions](#transaction-and-concurrency).
 
-Swagger UI is embedded and available at http://localhost:8080/swagger-ui.html.
-
-### Sample requests using [httpie](https://httpie.io/)
-
-```shell
-http :8080/bookings
-http :8080/availabilities
-http -v POST :8080/bookings fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-01' departureDate='2021-05-03'
-http :8080/bookings
-http :8080/bookings/1
-http -v PUT :8080/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-02' departureDate='2021-05-03'
-http :8080/bookings/1
-http DELETE :8080/bookings/1
-```
-
-### Testing with Swagger UI
-
-Visit http://localhost:8080/swagger-ui.html or http://34.95.52.30/swagger-ui.html.
-
-### Testing with Postman
-
-The postman public workspace is https://www.postman.com/nbrouard/workspace/camping-reservation.
-
-### Deployment with Helm
-
-```shell
-helm upgrade --install campsite-reservation src/main/helm/ \
-  --set image.repository=gcr.io/nbrouard-campsite-reservation/campsite-reservation \
-  --set image.tag=5c2c7d9b4d71a89d7e7c2a250c3a59dd4627b4d5
-```
-
-### Deployment to Kubernetes
-
-When creating a release with GitHub, the workflow deploys the application, and a load balancer to Google Cloud Engine.
-
-The load balancer has an external IP which allows to access the application with a public IP.
-
-### SonarQube
-
-Static analysis of the code: https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation
-
-### H2 console
-
-http://localhost:8080/h2-console/
 
 ### Load testing
 
-I used [Hey](https://github.com/rakyll/hey) to test the endpoint /availabilities with 2 replicas:
+I used the tool [Hey](https://github.com/rakyll/hey) to test 2 replicas deployed in GKE.
+I sent 300 request on the endpoint `GET /availabilities` on 10 threads.
 
 ```shell
 ./hey_linux_amd64 -n 300 -c 10 http://34.95.52.30/availabilities
@@ -248,8 +249,64 @@ Response time histogram:
 0.283 [1]	|
 ```
 
-### Knonw limitations
+### How to execute
 
-GKE deployment is limited to 250m CPU and 1Gi of memory.
+```shell
+./gradlew bootRun
+```
+
+Swagger UI is embedded and available at http://localhost:8080/swagger-ui.html.
+
+### Sample requests using [httpie](https://httpie.io/)
+
+```shell
+http :8080/bookings
+http :8080/availabilities
+http -v POST :8080/bookings fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-01' departureDate='2021-05-03'
+http :8080/bookings
+http :8080/bookings/1
+http -v PUT :8080/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-02' departureDate='2021-05-03'
+http :8080/bookings/1
+http DELETE :8080/bookings/1
+```
+
+### Swagger
+
+Swagger UI, accessible at http://localhost:8080/swagger-ui.html or http://34.95.52.30/swagger-ui.html can be used
+to read the REST API documentation and to execute some requests.
+
+### Testing with Postman
+
+The postman public workspace is https://www.postman.com/nbrouard/workspace/camping-reservation and contains some test requests.
+
+### Deployment with Helm
+
+```shell
+helm upgrade --install campsite-reservation src/main/helm/ \
+  --set image.repository=gcr.io/nbrouard-campsite-reservation/campsite-reservation \
+  --set image.tag=5c2c7d9b4d71a89d7e7c2a250c3a59dd4627b4d5
+```
+
+### Deployment to Kubernetes
+
+When creating a release with GitHub, the workflow deploys the application, and a load balancer to Google Cloud Engine.
+
+The load balancer has an external IP which allows to access the application with a public IP.
+
+### Spring profiles
+TODO 
+
+### SonarQube
+
+Static analysis of the code: https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation
+
+### H2 console
+
+http://localhost:8080/h2-console/
+
+
+### Known limitations
+
+My GKE deployment is limited to 250m CPU and 1Gi of memory.
 
 [Notes](NOTES.md)

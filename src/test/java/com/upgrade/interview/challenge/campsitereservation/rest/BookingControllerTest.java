@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -154,6 +155,24 @@ class BookingControllerTest {
   void addBooking_invalid(Booking booking, String message) throws Exception {
     final var bookingJson = objectMapper.writeValueAsString(booking);
     mockMvc.perform(post(BASE_PATH).contentType(MediaType.APPLICATION_JSON).content(bookingJson))
+        .andDo(print())
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().string(containsString(message)));
+  }
+
+  private static Stream<Arguments> addBooking_invalidDate_source() {
+    return Stream.of(
+      Arguments.of("{\"departureDate\":\"invalid\"}", "Text 'invalid' could not be parsed"),
+      Arguments.of("{\"departureDate\":\"2021-02-31\"}", "Invalid date"),
+      Arguments.of("invalid json", "Unrecognized token")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("addBooking_invalidDate_source")
+  void addBooking_invalidDate(String json, String message) throws Exception {
+    mockMvc.perform(post(BASE_PATH).contentType(MediaType.APPLICATION_JSON).content(json))
         .andDo(print())
         .andExpect(status().isBadRequest())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -339,4 +358,16 @@ class BookingControllerTest {
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().string(containsString("Start date 2021-01-02 is after end date 2021-01-01")));
   }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"invalid", "2021-02-31"})
+  void getAvailabilitiesBetween_invalidDate(String date) throws Exception {
+    mockMvc.perform(get(BASE_AVAILABLE_PATH)
+        .queryParam("end", date))
+        .andDo(print())
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().string(containsString("Unable to parse date time value")));
+  }
+
 }
