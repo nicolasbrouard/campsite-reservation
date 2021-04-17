@@ -52,7 +52,7 @@ public class BookingValidator implements ConstraintValidator<BookingConstraint, 
     }
 
     // The campsite can be reserved for max 3 days.
-    final var maxStayInDays = configuration.getMaxStayInDays();
+    final var maxStayInDays = configuration.getMaxBookingDurationInDays();
     if (stayInDays > maxStayInDays) {
       context.buildConstraintViolationWithTemplate(
           "The campsite can be reserved for maximum " + maxStayInDays + " days")

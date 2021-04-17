@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CampsiteConfiguration {
-  private long maxStayInDays;
+  private long maxBookingDurationInDays;
   private long minDaysAheadOfArrival;
   private long maxDaysAheadOfArrival;
 }

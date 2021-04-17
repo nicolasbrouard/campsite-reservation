@@ -1,9 +1,9 @@
 {
   "properties": [
     {
-      "name": "campsite.max-stay-in-days",
+      "name": "campsite.max-booking-duration-in-days",
       "type": "java.lang.Long",
-      "description": "Maximum booking duration in days."
+      "description": "Maximum length of a reservation in days."
     },
     {
       "name": "campsite.max-days-ahead-of-arrival",

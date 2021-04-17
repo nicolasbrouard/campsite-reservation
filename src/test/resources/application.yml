@@ -9,6 +9,6 @@ logging:
     org.springframework.orm.jpa: DEBUG
 
 campsite:
-  max-stay-in-days: 3
+  max-booking-duration-in-days: 3
   max-days-ahead-of-arrival: 31
   min-days-ahead-of-arrival: 1

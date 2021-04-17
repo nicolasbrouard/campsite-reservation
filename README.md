@@ -7,7 +7,9 @@
 - [This GitHub repo](https://github.com/nicolasbrouard/campsite-reservation/)
 - [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation)
 - [Postman test](https://www.postman.com/nbrouard/workspace/camping-reservation)
-- [Swagger UI](http://34.95.52.30/swagger-ui.html) 
+- [Swagger UI](http://34.95.52.30/swagger-ui.html)
+- [Gradle build scan](https://scans.gradle.com/s/kobk6jlqibllc)
+- [Documentation](#documentation)
 
 ## Description of the challenge
 
@@ -35,8 +37,8 @@ To streamline the reservations a few constraints need to be in place
 - Provide an end point for reserving the campsite. The user will provide his/her email & full name at the time of
   reserving the campsite along with intended arrival date and departure date. Return a unique booking identifier back to
   the caller if the reservation is successful.
-- The unique booking identifier can be used to modify or cancel the reservation later on. Provide appropriate end point(
-  s) to allow modification/cancellation of an existing reservation
+- The unique booking identifier can be used to modify or cancel the reservation later on. Provide appropriate end
+  point(s) to allow modification/cancellation of an existing reservation
 - Due to the popularity of the island, there is a high likelihood of multiple users attempting to reserve the campsite
   for the same/overlapping date(s). Demonstrate with appropriate test cases that the system can gracefully handle
   concurrent requests to reserve the campsite.
@@ -54,16 +56,118 @@ separation between entity and response, documentation, usage of tech like Spring
 
 ## Documentation
 
-### Design notes
+The campsite-reservation service is written in java 11 with Spring Boot.
 
-LocalDate is used to store date of the booking.
+This is a simple REST API service (developed with spring-boot-web) with a Postgres database accessed via spring-boot-data-jpa.
 
-Booking from start (ex: 2021-04-14) to end (ex: 2021-04-17) means the arrival datetime is 2021-04-14 at 12:00 AM and the
-departure date is 2021-04-17 at 12:00 AM.
+The application is packaged as a Helm chart and deployable in a Kubernetes cluster.
 
-In terms of availabilities, it means the days 14th, 15th and 16th are booked and 17th is available.
+The application is currently deployed with 2 replicas in Google Kubernetes Engine (in Autopilot mode) and publicly accessible
+at http://34.95.52.30/swagger-ui.html.
 
-Everywhere, the start date is included, and the end date is excluded.
+### Open source technologies
+
+- *Java 11*
+- *Gradle 7.0* to build
+- *lombok* to generate boilerplate code
+- *Spring Boot* (spring-web, spring-webmvc, spring-data-joa)
+- *Docker* to package the application in a container
+- *Helm* to install the application
+- *Swagger* to document the REST API
+- *H2* to test with in-memory database
+- *Postgres* to deploy with a real database
+
+### GitHub workflow
+
+The source code is hosted on GitHub with 2 configured workflows:
+
+- [Java CI with gradle](https://github.com/nicolasbrouard/campsite-reservation/blob/master/.github/workflows/gradle.yml)
+which:
+  - [builds](https://scans.gradle.com/s/kobk6jlqibllc),
+  - executes [unit tests](https://scans.gradle.com/s/kobk6jlqibllc/tests),
+  - and analyses the code with [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation).
+- [Build and Deploy to GKE](https://github.com/nicolasbrouard/campsite-reservation/blob/master/.github/workflows/google.yml)
+which:
+  - creates a bootJar (gradle plugin org.springframework.boot),
+  - builds a docker image,
+  - pushes the docker image to `gcr.io/nbrouard-campsite-reservation/campsite-reservation`,
+  - deploy the helm chart to GKE (upgrade the current release),
+  - executes the helm tests.
+
+### Packages and Classes
+
+The main package is `com.upgrade.interview.challenge.campsitereservation`.
+
+#### Subpackage `persistence`
+
+Each campsite reservation is represented by an entity `BookingEntity` and managed by the interface
+`BookingRepository` (which is a `JpaRepository`). The primary key of the booking entity is the `id`.
+
+Each date that is reserved, is represented by an entity `BookingDate` and managed by the interface
+`BookingDateRepository` (which is also a `JpaRepository`). This is not strictly necessary, but it 
+simplifies the logic to check if a date is available. The `BookingDate` table has one column `date` which
+is the primary key.
+
+The class `BookingService` contains the logic of the reservation system and allows the usage of transactions.
+
+#### Subpackage `rest`
+
+The `BookingController` manages the REST API. The POJO `Booking` is used in requests and responses, in 
+addition to the class `java.time.LocalDate` which is used to represent the dates.
+
+See the section [About dates](#about-dates).
+
+### Subpackage `validation`
+
+`BookingConstraint` is an annotation which defines the constraints on the `Booking` class. The component `BookingValidator`
+executes the validation logic and reports appropriate error message when the constraints are violated.
+
+### Subpackage `exception`
+
+This package contains the declaration of 3 custom exception classes that extends `RuntimeException`:
+- `AlreadyBookedException`
+- `BadRequestException`
+- `BookingNotFoundException`
+
+See the section [Exception handling](#exception-handling).
+
+### Class diagram
+
+[![](diagrams/mermaid-diagram-20210416171426.jpg)
+
+### About dates
+
+For sake of simplicity we assume the check-in & check-out time is 12:00 AM, so we don't need to store the time.
+The class `java.time.LocalDate` is used everywhere to manipulate the date.
+
+A reservation with an arrival date 2021-04-14 at 12:00 AM and a departure date 2021-04-17 at 12:00 AM is represented
+by a `Booking` object with fields `arrivalDate = LocalDate("2021-04-14")` and `departudeDate = LocalDate("2021-04-17")`.
+
+In terms of availabilities, the start date is included, and the end date is excluded. In the above example, it means
+the days 2021-04-14, 2021-04-15, and 2021-04-16 are booked and 2021-04-17 is available.
+
+### Configuration
+
+I created 3 custom configurations:
+```yaml
+campsite:
+  max-booking-duration-in-days: 3
+  max-days-ahead-of-arrival: 31
+  min-days-ahead-of-arrival: 1
+```
+- `campsite.max-booking-duration-in-days` specifies the maximum length of a reservation days.
+- `campsite.max-days-ahead-of-arrival` specifies the maximum number of days before the arrival date of a booking.
+- `campsite.min-days-ahead-of-arrival` specifies the minimum number of days before the arrival date of a booking.
+
+### Validation
+
+### Exception handling
+
+### Transaction and concurrency
+
+### Scalability
+
+### Code coverage
 
 ### How to execute
 
@@ -143,3 +247,9 @@ Response time histogram:
 0.257 [5]	|■■
 0.283 [1]	|
 ```
+
+### Knonw limitations
+
+GKE deployment is limited to 250m CPU and 1Gi of memory.
+
+[Notes](NOTES.md)
