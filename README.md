@@ -67,17 +67,17 @@ at http://34.95.52.30/swagger-ui.html.
 
 ### Open source technologies
 
-- *Java 11*
-- *Gradle 7.0* to build
-- *lombok* to generate boilerplate code
-- *Spring Boot* (spring-web, spring-webmvc, spring-data-joa)
-- *Docker* to package the application in a container
-- *Helm* to install the application
-- *Swagger* to document the REST API
-- *H2* to test with in-memory database
-- *Postgres* to deploy with a real database
-- *Mockito* for unit test
-- *Assertj* for the unit test assertion
+- **Java 11**
+- **Gradle 7.0** to build
+- **Lombok** to generate boilerplate code
+- **Spring Boot** (spring-web, spring-webmvc, spring-data-joa)
+- **Docker** to package the application in a container
+- **Helm** to install the application
+- **Swagger** to document the REST API
+- **H2** to test with in-memory database
+- **Postgres** to deploy with a real database
+- **Mockito** for unit test
+- **Assertj** for the unit test assertion
 
 ### GitHub workflow
 
@@ -231,7 +231,8 @@ HTTP status code that can be returned:
 Thanks to the table `BookingDate`, the logic is simple:
 - List all the dates between start and end dates -> list1
 - With the `BookingDateRepository`, find all dates between start and end -> list2
-- Return list1 - list2.
+- Remove all elements of list2 from list1.
+- Return list1.
 
 This logic is in the method `BookingService#getAvailabilities()` which is annotated with `@Transactional(readOnly = true)`.
 It is a readonly transaction because it does not modify the values.
@@ -253,7 +254,7 @@ phantom reads and non-repeatable read.
 
 The logic is:
 - Find all reserved date in the `BookingDate` table between the arrival date, and the departure date.
-  This method is annotated with `@Lock(LockModeType.PESSIMISTIC_WRITE)` which allows using select for update.
+  This method is annotated with `@Lock(LockModeType.PESSIMISTIC_WRITE)` which allows using *select for update*.
   It can throw a CannotAcquireLockException in case of concurrent access on the same rows. 
 - If at least 1 date is booked within this time range, throws AlreadyBookedException.
 - Otherwise, save all the date within this time range in the `BookingDate` table. This can throw
@@ -321,13 +322,13 @@ Response time histogram:
 ### Spring profiles
 
 There are 4 profiles:
-- *default* which uses h2 in memory-database
-- *postgres* which uses a postgres database. The postgres database can be run in a docker image:
+- **default** which uses h2 in memory-database
+- **postgres** which uses a postgres database. The postgres database can be run in a docker image:
   ```shell
   docker run --network host --rm --name my-postgres -e POSTGRES_PASSWORD=mysecretpassword postgres
   ```
-- *dev* which is similar to default
-- *h2-db* which uses a h2 database. The databse can be run in a docker image:
+- **dev** which is similar to default
+- **h2-db** which uses a h2 database. The database can be run in a docker image:
   ```shell
   docker run --network host --rm --name my-h2 buildo/h2database
   ```
