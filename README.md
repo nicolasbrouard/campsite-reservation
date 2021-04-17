@@ -166,7 +166,7 @@ the days 2021-04-14, 2021-04-15, and 2021-04-16 are booked and 2021-04-17 is ava
 
 ### Configuration
 
-I created 3 custom configurations:
+There are 3 custom configurations:
 ```yaml
 campsite:
   max-booking-duration-in-days: 3
@@ -203,9 +203,79 @@ HTTP status code that can be returned:
 - 400 BAD_REQUEST when request parameters or request json body are invalid
 - 500 INTERNAL_SERVER_ERROR for other types of error
 
-### Transaction and concurrency
+### REST API design
+
+6 operations are exposed on the endpoint (detailed in the section [Internal logic, transaction and concurrency](#internal-logic-transaction-and-concurrency)).
+- `GET /availabilities`: Get information of the availability of the campsite for a given date range with the default being 1 month.
+  This operation returns the list of available dates.
+  2 optional request parameters `start` and `end` can be used to specify the date range. The default value for `start` is today.
+  The default value for `end` is 1 month ahead today.
+- `GET /bookings`: Get the list of all reservations.
+- `GET /booking/{id}`: Get the information of the reservation with the given id.
+- `POST /booking`: Reserve the campsite with the information of the json body:
+  ```json
+  {
+    "email": "email@gmail.com",
+    "fullname": "Full name",
+    "arrivalDate": "2021-04-17",
+    "departureDate": "2021-04-20"
+  }
+  ```
+- `PUT /booking/{id}`: Update the reservation with the given id with the information of the json body (see above).
+- `DELETE /booking/{id}`: Cancel the reservation with the given id.
+
+### Internal logic, Transaction and Concurrency
+
+#### GET /availabilities - getAvailabilitiesBetween(start, end)
+
+Thanks to the table `BookingDate`, the logic is simple:
+- List all the dates between start and end dates -> list1
+- With the `BookingDateRepository`, find all dates between start and end -> list2
+- Return list1 - list2.
+
+This logic is in the method `BookingService#getAvailabilities()` which is annotated with `@Transactional(readOnly = true)`.
+It is a readonly transaction because it does not modify the values.
+
+#### GET /bookings - getBookingList
+
+This operation also uses a readonly transaction to find all booking from the `Booking` table sorted by arrival dates.
+
+#### GET /bookings/{id} - getBooking(id)
+
+This operation also uses a readonly transaction to find by id 1 booking from the `Booking` table.
+
+#### POST /bookings - addBooking(booking)
+
+This operation needs to be protected against concurrent access. A simple mutex cannot work when there
+are multiple replicas of the application. I used several mechanisms. First, the `BookingService#add()` method
+is annotated with `@Transactional(isolation = Isolation.SERIALIZABLE)` which prevents against dirty reads, 
+phantom reads and non-repeatable read.
+
+The logic is:
+- Find all reserved date in the `BookingDate` table between the arrival date, and the departure date.
+  This method is annotated with `@Lock(LockModeType.PESSIMISTIC_WRITE)` which allows using select for update.
+  It can throw a CannotAcquireLockException in case of concurrent access on the same rows. 
+- If at least 1 date is booked within this time range, throws AlreadyBookedException.
+- Otherwise, save all the date within this time range in the `BookingDate` table. This can throw
+  a DataIntegrityViolationException in case 
+- And, save the booking in the `Booking` table. This method is annotated with `@Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)`
+  which implements a pessimist write lock with version update. Indeed, the `BookingEntity` contains a version field
+  to protect against concurrent updates.
+
+In general, a TransientDataAccessException can be thrown indicating that the operation might be able to succeed
+if it is retried.
+
+#### PUT /bookings/{id} - updateBooking(id, booking)
+
+TODO
+
+#### DELETE /bookings/{id} - deleteBooking(id)
+
+TODO
 
 ### Scalability
+
+TODO
 
 ### Unit tests and Code coverage
 
@@ -217,13 +287,12 @@ The code is covered at 97% by unit tests. See the [SonarQube report](https://son
 - The `BookingServiceConcurrencyTest` class contains special tests for testing concurrent access, using an H2 in-memory
   database. Test are written with an `ExecutorService` that submit 2 tasks. A delay is artificially added to make sure the second
   task is executed in the middle of the first task. This tests guarantees that the transactions are correctly managed.
-  See the section [Transactions](#transaction-and-concurrency).
-
+  See the section [Transactions](#internal-logic-transaction-and-concurrency).
 
 ### Load testing
 
 I used the tool [Hey](https://github.com/rakyll/hey) to test 2 replicas deployed in GKE.
-I sent 300 request on the endpoint `GET /availabilities` on 10 threads.
+I sent 300 requests `GET /availabilities` on 10 threads.
 
 ```shell
 ./hey_linux_amd64 -n 300 -c 10 http://34.95.52.30/availabilities
@@ -249,37 +318,41 @@ Response time histogram:
 0.283 [1]	|
 ```
 
+### Spring profiles
+
+There are 4 profiles:
+- *default* which uses h2 in memory-database
+- *postgres* which uses a postgres database. The postgres database can be run in a docker image:
+  ```shell
+  docker run --network host --rm --name my-postgres -e POSTGRES_PASSWORD=mysecretpassword postgres
+  ```
+- *dev* which is similar to default
+- *h2-db* which uses a h2 database. The databse can be run in a docker image:
+  ```shell
+  docker run --network host --rm --name my-h2 buildo/h2database
+  ```
+
 ### How to execute
+
+#### Locally
+
+Run:
 
 ```shell
 ./gradlew bootRun
 ```
 
+The default profile uses h2 in-memory database.
+
 Swagger UI is embedded and available at http://localhost:8080/swagger-ui.html.
 
-### Sample requests using [httpie](https://httpie.io/)
+#### On Kubernetes
 
-```shell
-http :8080/bookings
-http :8080/availabilities
-http -v POST :8080/bookings fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-01' departureDate='2021-05-03'
-http :8080/bookings
-http :8080/bookings/1
-http -v PUT :8080/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-02' departureDate='2021-05-03'
-http :8080/bookings/1
-http DELETE :8080/bookings/1
-```
+When creating a release with GitHub, the workflow deploys the application, and a load balancer to Google Kubernetes Engine.
 
-### Swagger
+The load balancer has an external IP which allows to access the application with a public IP: http://34.95.52.30/swagger-ui.html
 
-Swagger UI, accessible at http://localhost:8080/swagger-ui.html or http://34.95.52.30/swagger-ui.html can be used
-to read the REST API documentation and to execute some requests.
-
-### Testing with Postman
-
-The postman public workspace is https://www.postman.com/nbrouard/workspace/camping-reservation and contains some test requests.
-
-### Deployment with Helm
+Here is the command to manually deploy with helm:
 
 ```shell
 helm upgrade --install campsite-reservation src/main/helm/ \
@@ -287,14 +360,54 @@ helm upgrade --install campsite-reservation src/main/helm/ \
   --set image.tag=5c2c7d9b4d71a89d7e7c2a250c3a59dd4627b4d5
 ```
 
-### Deployment to Kubernetes
+### Sample requests using [httpie](https://httpie.io/)
 
-When creating a release with GitHub, the workflow deploys the application, and a load balancer to Google Cloud Engine.
+```shell
+URL=http://localhost:8080
+#URL=http://34.95.52.30
+http $URL/bookings
+http $URL/availabilities
+http -v POST $URL/bookings fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-01' departureDate='2021-05-03'
+http $URL/bookings
+http $URL/bookings/1
+http -v PUT $URL/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-02' departureDate='2021-05-03'
+http $URL/bookings/1
+http DELETE $URL/bookings/1
+```
 
-The load balancer has an external IP which allows to access the application with a public IP.
+### Reservation examples
 
-### Spring profiles
-TODO 
+```json
+[
+  {
+    "email": "brouard1@gmail.com",
+    "fullname": "Lison Brouard",
+    "arrivalDate": "2021-04-17",
+    "departureDate": "2021-04-20"
+  },
+  {
+    "email": "KiwietBleuette@boutdchou.mimichou",
+    "fullname": "Kiwi et Bleuette",
+    "arrivalDate": "2021-04-28",
+    "departureDate": "2021-04-30"
+  },
+  {
+    "email": "Mirabelle@pusslt.mimichou",
+    "fullname": "Mirabelle",
+    "arrivalDate": "2021-05-08",
+    "departureDate": "2021-05-11"
+  }
+]
+```
+
+### Swagger
+
+Swagger UI, accessible at http://localhost:8080/swagger-ui.html or http://34.95.52.30/swagger-ui.html can be used
+to read the REST API documentation and execute some requests.
+
+### Testing with Postman
+
+The postman public workspace is https://www.postman.com/nbrouard/workspace/camping-reservation and contains some test requests.
 
 ### SonarQube
 
@@ -302,11 +415,14 @@ Static analysis of the code: https://sonarcloud.io/dashboard?id=nicolasbrouard_c
 
 ### H2 console
 
-http://localhost:8080/h2-console/
-
+H2-console can be enabled with the property `spring.h2.console.enabled=true` and accessible at http://localhost:8080/h2-console/.
 
 ### Known limitations
 
-My GKE deployment is limited to 250m CPU and 1Gi of memory.
+1. My GKE deployment is limited to 250m CPU and 1Gi of memory.
 
-[Notes](NOTES.md)
+2. I found inconsistent behaviors between h2 in-memory and postgres DB:
+  - With h2, I needed to add `@Transactional(isolation = Isolation.SERIALIZABLE)` to prevent concurrent creation of booking.
+  - With postgres, this is not necessary because the "select for update" seems to work fine.
+  - Adding `@Transactional(isolation = Isolation.SERIALIZABLE)` is not perfect because it also prevents concurrent creation of bookings
+    that not in conflict.
