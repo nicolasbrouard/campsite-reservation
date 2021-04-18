@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +27,7 @@ import com.upgrade.interview.challenge.campsitereservation.persistence.BookingSe
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -71,12 +72,18 @@ public class BookingController {
         .orElseThrow(() -> new BookingNotFoundException(id));
   }
 
-  @Operation(summary = "Get information of the availability of the campsite for a given date range with the default being 1 month.")
+  @Operation(summary = "Get information of the availability of the campsite for a given date range with the default being 1 month since today.")
   @GetMapping(path = BASE_AVAILABLE_PATH)
   public List<LocalDate> getAvailabilitiesBetween(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                                  @RequestParam(required = false) LocalDate start,
+                                                  @RequestParam(required = false)
+                                                  @Parameter(name = "Start date",
+                                                      description = "Start date (included), default: today")
+                                                      LocalDate start,
                                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                                  @RequestParam(required = false) LocalDate end) {
+                                                  @RequestParam(required = false)
+                                                  @Parameter(name = "End date",
+                                                      description = "End date (excluded), default: start date + 1 month")
+                                                      LocalDate end) {
     if (start == null) {
       start = LocalDate.now();
     }
@@ -97,7 +104,7 @@ public class BookingController {
     try {
       log.info("Add booking {}", booking);
       return Booking.createFrom(bookingService.add(BookingEntity.createFrom(booking)));
-    } catch (CannotAcquireLockException e) {
+    } catch (DataAccessException e) {
       throw new AlreadyBookedException("Dates are not available");
     }
   }

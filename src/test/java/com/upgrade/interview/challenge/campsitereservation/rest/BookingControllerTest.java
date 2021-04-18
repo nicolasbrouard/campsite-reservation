@@ -72,6 +72,24 @@ class BookingControllerTest {
   @SpyBean
   private BookingService bookingService;
 
+  private static Stream<Arguments> addBooking_invalid_source() {
+    return Stream.of(
+        Arguments.of(Fixtures.createTooEarlyBooking(), "The campsite can be reserved minimum 1 day(s) ahead of arrival."),
+        Arguments.of(Fixtures.createTooLongBooking(), "The campsite can be reserved for maximum 3 days."),
+        Arguments.of(Fixtures.createTooShortBooking(), "The campsite can be reserved for minimum 1 day."),
+        Arguments.of(Fixtures.createTooLateBooking(), "The campsite can be reserved up to 31 day(s) in advance."),
+        Arguments.of(Fixtures.createBookingWithDepartureBeforeArrival(), "Arrival date should be before departure date.")
+    );
+  }
+
+  private static Stream<Arguments> addBooking_invalidDate_source() {
+    return Stream.of(
+        Arguments.of("{\"departureDate\":\"invalid\"}", "Text 'invalid' could not be parsed"),
+        Arguments.of("{\"departureDate\":\"2021-02-31\"}", "Invalid date"),
+        Arguments.of("invalid json", "Unrecognized token")
+    );
+  }
+
   @BeforeEach
   void setUp() {
     objectMapper.registerModule(new JavaTimeModule());
@@ -140,16 +158,6 @@ class BookingControllerTest {
         .andExpect(content().json(expectedBookingJson));
   }
 
-  private static Stream<Arguments> addBooking_invalid_source() {
-    return Stream.of(
-        Arguments.of(Fixtures.createTooEarlyBooking(), "The campsite can be reserved minimum 1 day(s) ahead of arrival."),
-        Arguments.of(Fixtures.createTooLongBooking(), "The campsite can be reserved for maximum 3 days."),
-        Arguments.of(Fixtures.createTooShortBooking(), "The campsite can be reserved for minimum 1 day."),
-        Arguments.of(Fixtures.createTooLateBooking(), "The campsite can be reserved up to 31 day(s) in advance."),
-        Arguments.of(Fixtures.createBookingWithDepartureBeforeArrival(), "Arrival date should be before departure date.")
-    );
-  }
-
   @ParameterizedTest
   @MethodSource("addBooking_invalid_source")
   void addBooking_invalid(Booking booking, String message) throws Exception {
@@ -159,14 +167,6 @@ class BookingControllerTest {
         .andExpect(status().isBadRequest())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().string(containsString(message)));
-  }
-
-  private static Stream<Arguments> addBooking_invalidDate_source() {
-    return Stream.of(
-      Arguments.of("{\"departureDate\":\"invalid\"}", "Text 'invalid' could not be parsed"),
-      Arguments.of("{\"departureDate\":\"2021-02-31\"}", "Invalid date"),
-      Arguments.of("invalid json", "Unrecognized token")
-    );
   }
 
   @ParameterizedTest

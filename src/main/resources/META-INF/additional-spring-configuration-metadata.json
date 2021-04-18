@@ -15,4 +15,5 @@
       "type": "java.lang.Long",
       "description": "Minimum number of days before the arrival date of a booking."
     }
-  ] }
+  ]
+}

@@ -17,31 +17,18 @@ import com.upgrade.interview.challenge.campsitereservation.exception.AlreadyBook
 import com.upgrade.interview.challenge.campsitereservation.exception.BadRequestException;
 import com.upgrade.interview.challenge.campsitereservation.exception.BookingNotFoundException;
 import com.upgrade.interview.challenge.campsitereservation.validation.BookingValidator;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Value;
 
 @ControllerAdvice
 public class BookingControllerAdvice {
 
-  @Value
-  @Builder
-  private static class ErrorResponse {
-    HttpStatus status;
-    String message;
-  }
-
   private ErrorResponse errorHandler(HttpStatus status, Throwable throwable) {
     return ErrorResponse.builder()
         .status(status)
         .message(Throwables.getRootCause(throwable).getMessage())
         .build();
-  }
-
-  @ResponseBody
-  @ExceptionHandler(BookingNotFoundException.class)
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  ErrorResponse notFoundHandler(BookingNotFoundException e) {
-    return errorHandler(HttpStatus.NOT_FOUND, e);
   }
 
   @ResponseBody
@@ -71,13 +58,6 @@ public class BookingControllerAdvice {
     return errorHandler(HttpStatus.BAD_REQUEST, e);
   }
 
-  @ResponseBody
-  @ExceptionHandler(AlreadyBookedException.class)
-  @ResponseStatus(HttpStatus.CONFLICT)
-  ErrorResponse badRequestHandler(AlreadyBookedException e) {
-    return errorHandler(HttpStatus.CONFLICT, e);
-  }
-
   /**
    * Reformat the messages of the constraint violation (See {@link BookingValidator}.
    */
@@ -97,6 +77,20 @@ public class BookingControllerAdvice {
   }
 
   @ResponseBody
+  @ExceptionHandler(BookingNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  ErrorResponse notFoundHandler(BookingNotFoundException e) {
+    return errorHandler(HttpStatus.NOT_FOUND, e);
+  }
+
+  @ResponseBody
+  @ExceptionHandler(AlreadyBookedException.class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  ErrorResponse badRequestHandler(AlreadyBookedException e) {
+    return errorHandler(HttpStatus.CONFLICT, e);
+  }
+
+  @ResponseBody
   @ExceptionHandler(RuntimeException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   ErrorResponse internalServerErrorHandler(RuntimeException e) {
@@ -104,5 +98,15 @@ public class BookingControllerAdvice {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .message(Throwables.getRootCause(e).toString())
         .build();
+  }
+
+  @Value
+  @Builder
+  @Schema(title = "Error response", description = "Detailed information about an error")
+  private static class ErrorResponse {
+    @Schema(description = "HTTP status")
+    HttpStatus status;
+    @Schema(description = "Description of the error")
+    String message;
   }
 }

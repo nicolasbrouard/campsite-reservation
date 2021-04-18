@@ -23,18 +23,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BookingEntity {
 
-  /**
-   * Creates a BookingEntity object from Booking object.
-   */
-  public static BookingEntity createFrom(Booking booking) {
-    return BookingEntity.builder()
-        .email(booking.getEmail())
-        .fullname(booking.getFullname())
-        .arrivalDate(booking.getArrivalDate())
-        .departureDate(booking.getDepartureDate())
-        .build();
-  }
-
   @Id
   @GeneratedValue
   private long id;
@@ -50,6 +38,18 @@ public class BookingEntity {
   private LocalDate arrivalDate;
 
   private LocalDate departureDate;
+
+  /**
+   * Creates a BookingEntity object from Booking object.
+   */
+  public static BookingEntity createFrom(Booking booking) {
+    return BookingEntity.builder()
+        .email(booking.getEmail())
+        .fullname(booking.getFullname())
+        .arrivalDate(booking.getArrivalDate())
+        .departureDate(booking.getDepartureDate())
+        .build();
+  }
 
   public List<BookingDate> bookingDates() {
     return Utils.datesBetween(arrivalDate, departureDate)

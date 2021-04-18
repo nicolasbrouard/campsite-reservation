@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import com.upgrade.interview.challenge.campsitereservation.persistence.BookingEntity;
 import com.upgrade.interview.challenge.campsitereservation.validation.BookingConstraint;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Value;
 
@@ -16,19 +17,6 @@ import lombok.Value;
 @Builder
 @BookingConstraint
 public class Booking {
-
-  /**
-   * Creates a Booking object from BookingEntity object.
-   */
-  public static Booking createFrom(BookingEntity bookingEntity) {
-    return Booking.builder()
-        .email(bookingEntity.getEmail())
-        .fullname(bookingEntity.getFullname())
-        .arrivalDate(bookingEntity.getArrivalDate())
-        .departureDate(bookingEntity.getDepartureDate())
-        .id(bookingEntity.getId())
-        .build();
-  }
 
   @Email(message = "Email should be valid")
   @NotBlank(message = "Email cannot be blank")
@@ -45,5 +33,21 @@ public class Booking {
   @NotNull(message = "DepartureDate is mandatory")
   LocalDate departureDate;
 
+  // This is only used in the response, to return the id of a booking
+  @Schema(hidden = true)
   long id;
+
+  /**
+   * Creates a Booking object from BookingEntity object.
+   */
+  public static Booking createFrom(BookingEntity bookingEntity) {
+    return Booking.builder()
+        .email(bookingEntity.getEmail())
+        .fullname(bookingEntity.getFullname())
+        .arrivalDate(bookingEntity.getArrivalDate())
+        .departureDate(bookingEntity.getDepartureDate())
+        .id(bookingEntity.getId())
+        .build();
+  }
+
 }
