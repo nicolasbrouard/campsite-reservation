@@ -366,7 +366,9 @@ helm upgrade --install campsite-reservation src/main/helm/ \
   --set image.tag=5c2c7d9b4d71a89d7e7c2a250c3a59dd4627b4d5
 ```
 
-### Sample requests using [httpie](https://httpie.io/)
+### Tests using [httpie](https://httpie.io/)
+
+Some sample requests:
 
 ```shell
 URL=http://localhost:8080
@@ -380,6 +382,8 @@ http -v PUT $URL/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@gm
 http $URL/bookings/1
 http DELETE $URL/bookings/1
 ```
+
+The folder [test](test) contains 2 simple bash scripts for functional and load testing. 
 
 ### Reservation examples
 
