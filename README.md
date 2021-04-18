@@ -84,12 +84,12 @@ at http://34.95.52.30/swagger-ui.html.
 
 The source code is hosted on GitHub with 2 configured workflows:
 
-- [Java CI with gradle](https://github.com/nicolasbrouard/campsite-reservation/blob/master/.github/workflows/gradle.yml)
+- [Java CI with gradle](.github/workflows/gradle.yml)
 which:
   - [builds](https://scans.gradle.com/s/nhc3bhyqgwz26),
   - executes [unit tests](https://scans.gradle.com/s/nhc3bhyqgwz26/tests),
   - and analyses the code with [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation).
-- [Build and Deploy to GKE](https://github.com/nicolasbrouard/campsite-reservation/blob/master/.github/workflows/google.yml)
+- [Build and Deploy to GKE](.github/workflows/google.yml)
 which:
   - creates a bootJar (gradle plugin org.springframework.boot),
   - builds a docker image,
