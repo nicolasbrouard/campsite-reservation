@@ -8,7 +8,7 @@
 - [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation)
 - [Postman test](https://www.postman.com/nbrouard/workspace/camping-reservation)
 - [Swagger UI](http://34.95.52.30/swagger-ui.html)
-- [Gradle build scan](https://scans.gradle.com/s/kobk6jlqibllc)
+- [Gradle build scan](https://scans.gradle.com/s/nhc3bhyqgwz26)
 - [Documentation](#documentation)
 
 ## Description of the challenge
@@ -86,8 +86,8 @@ The source code is hosted on GitHub with 2 configured workflows:
 
 - [Java CI with gradle](https://github.com/nicolasbrouard/campsite-reservation/blob/master/.github/workflows/gradle.yml)
 which:
-  - [builds](https://scans.gradle.com/s/kobk6jlqibllc),
-  - executes [unit tests](https://scans.gradle.com/s/kobk6jlqibllc/tests),
+  - [builds](https://scans.gradle.com/s/nhc3bhyqgwz26),
+  - executes [unit tests](https://scans.gradle.com/s/nhc3bhyqgwz26/tests),
   - and analyses the code with [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation).
 - [Build and Deploy to GKE](https://github.com/nicolasbrouard/campsite-reservation/blob/master/.github/workflows/google.yml)
 which:
