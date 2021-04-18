@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -97,6 +99,26 @@ class BookingServiceConcurrencyTest {
     assertThatThrownBy(future2::get).hasCauseInstanceOf(NonTransientDataAccessException.class);
     assertThat(bookingRepository.findAll()).containsExactly(bookingEntity1);
     assertThat(bookingDateRepository.findAll()).containsExactlyElementsOf(bookingEntity1.bookingDates());
+  }
+
+  /**
+   * Test the creation of multiple identical entities in parallel. Only 1 should be successful.
+   */
+  @ParameterizedTest
+  @ValueSource(ints = {3, 5, 10, 50})
+  void addWithConcurrency_multiple_conflicts(int num) throws Exception {
+    final var bookingEntity = Fixtures.createBookingEntity();
+    final var executor = Executors.newFixedThreadPool(num);
+
+    for (int i = 0; i < num; i++) {
+      executor.execute(() -> bookingService.add(bookingEntity));
+    }
+
+    executor.shutdown();
+    assertThat(executor.awaitTermination(DELAY * 4, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(bookingRepository.findAll()).hasSize(1);
+    var expectedBookingDates = bookingEntity.bookingDates();
+    assertThat(bookingDateRepository.findAll()).containsExactlyElementsOf(expectedBookingDates);
   }
 
   /**
