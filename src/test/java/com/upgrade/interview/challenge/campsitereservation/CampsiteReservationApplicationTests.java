@@ -6,10 +6,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class CampsiteReservationApplicationTests {
 
-	@Test
-	@SuppressWarnings("java:S2699")
-	void contextLoads() {
-		// Verify that the application context can start
-	}
+  @Test
+  @SuppressWarnings("java:S2699")
+  void contextLoads() {
+    // Verify that the application context can start
+  }
 
 }

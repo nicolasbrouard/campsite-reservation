@@ -37,4 +37,3 @@ BookingValidator -- BookingContraint
 BookingValidator --> Booking : validates
 ```
 [![](diagrams/mermaid-diagram-20210416171426.jpg)
-

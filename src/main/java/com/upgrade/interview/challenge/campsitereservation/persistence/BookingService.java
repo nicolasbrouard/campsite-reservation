@@ -32,30 +32,48 @@ public class BookingService {
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public BookingEntity add(BookingEntity bookingEntity) {
     log.info("Adding {}", bookingEntity);
+    return privateAdd(bookingEntity);
+  }
+
+  private BookingEntity privateAdd(BookingEntity bookingEntity) {
+    // Retrieve dates that are potentially reserved by other bookings between the arrival and the departure dates
     // Could throw CannotAcquireLockException
-    final var bookingDatesBetween = bookingDateRepository.findAllDatesBetween(bookingEntity.getArrivalDate(), bookingEntity.getDepartureDate());
+    final var bookingDatesBetween = bookingDateRepository.findAllDatesBetween(
+        bookingEntity.getArrivalDate(), bookingEntity.getDepartureDate());
     final var bookingDates = convert(bookingDatesBetween);
+
+    // If the booking dates are available
     if (bookingDates.isEmpty()) {
-      log.error("Saving {}", bookingEntity);
-      insertArtificialDelayForTestsOnly();
-      // Could throw DataIntegrityViolationException (primary key constraint)
-      bookingDateRepository.saveAll(bookingEntity.bookingDates());
-      // Could fail because of version update ObjectOptimisticLockingFailureException
-      final var addedBookingEntity = bookingRepository.save(bookingEntity);
-      log.info("Added {}", addedBookingEntity);
-      return addedBookingEntity;
+      return save(bookingEntity);
     } else {
       throw new AlreadyBookedException("Dates " + bookingDates + " are not available");
     }
   }
 
+  private BookingEntity save(BookingEntity bookingEntity) {
+    log.error("Saving {}", bookingEntity);
+    insertArtificialDelayForTestsOnly();
+    // Could throw DataIntegrityViolationException (primary key constraint)
+    bookingDateRepository.saveAll(bookingEntity.bookingDates());
+    // Could fail because of version update ObjectOptimisticLockingFailureException
+    final var addedBookingEntity = bookingRepository.save(bookingEntity);
+    log.info("Added {}", addedBookingEntity);
+    return addedBookingEntity;
+  }
+
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public BookingEntity update(BookingEntity oldBookingEntity, BookingEntity newBookingEntity) {
     log.info("Updating {} with {}", oldBookingEntity, newBookingEntity);
+
+    // Set the id and the version of the modified booking
     newBookingEntity.setId(oldBookingEntity.getId());
     newBookingEntity.setVersion(oldBookingEntity.getVersion());
+
+    // First delete the booking dates of the booking that will be modified
     bookingDateRepository.deleteAll(oldBookingEntity.bookingDates());
-    return add(newBookingEntity);
+
+    // Add the modified booking (this is possible because the booking dates have been deleted
+    return privateAdd(newBookingEntity);
   }
 
   @Transactional(readOnly = true)

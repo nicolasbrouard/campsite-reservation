@@ -8,7 +8,7 @@
 - [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation)
 - [Postman test](https://www.postman.com/nbrouard/workspace/camping-reservation)
 - [Swagger UI](http://34.95.52.30/swagger-ui.html)
-- [Gradle build scan](https://scans.gradle.com/s/kobk6jlqibllc)
+- [Gradle build scan](https://scans.gradle.com/s/nhc3bhyqgwz26)
 - [Documentation](#documentation)
 
 ## Description of the challenge
@@ -72,12 +72,13 @@ at http://34.95.52.30/swagger-ui.html.
 - **Lombok** to generate boilerplate code
 - **Spring Boot** (spring-web, spring-webmvc, spring-data-joa)
 - **Docker** to package the application in a container
+- **[Distroless](https://github.com/GoogleContainerTools/distroless)** as a base docker image
 - **Helm** to install the application
-- **Swagger** to document the REST API
-- **H2** to test with in-memory database
-- **Postgres** to deploy with a real database
+- **Swagger** to document the REST API and to test
+- **H2** for unit test with in-memory database
+- **Postgres** database used in GKE deployment
 - **Mockito** for unit test
-- **Assertj** for the unit test assertion
+- **Assertj** for the unit test assertions
 
 ### GitHub workflow
 
@@ -85,8 +86,8 @@ The source code is hosted on GitHub with 2 configured workflows:
 
 - [Java CI with gradle](https://github.com/nicolasbrouard/campsite-reservation/blob/master/.github/workflows/gradle.yml)
 which:
-  - [builds](https://scans.gradle.com/s/kobk6jlqibllc),
-  - executes [unit tests](https://scans.gradle.com/s/kobk6jlqibllc/tests),
+  - [builds](https://scans.gradle.com/s/nhc3bhyqgwz26),
+  - executes [unit tests](https://scans.gradle.com/s/nhc3bhyqgwz26/tests),
   - and analyses the code with [SonarQube](https://sonarcloud.io/dashboard?id=nicolasbrouard_campsite-reservation).
 - [Build and Deploy to GKE](https://github.com/nicolasbrouard/campsite-reservation/blob/master/.github/workflows/google.yml)
 which:
@@ -209,7 +210,7 @@ HTTP status code that can be returned:
 - `GET /availabilities`: Get information of the availability of the campsite for a given date range with the default being 1 month.
   This operation returns the list of available dates.
   2 optional request parameters `start` and `end` can be used to specify the date range. The default value for `start` is today.
-  The default value for `end` is 1 month ahead today.
+  The default value for `end` is 1 month since the start date.
 - `GET /bookings`: Get the list of all reservations.
 - `GET /booking/{id}`: Get the information of the reservation with the given id.
 - `POST /booking`: Reserve the campsite with the information of the json body:
@@ -268,15 +269,19 @@ if it is retried.
 
 #### PUT /bookings/{id} - updateBooking(id, booking)
 
-TODO
+Updating a booking is very similar to the creation of a booking. Actually, the only difference is that the booking dates
+of the old booking are deleted before calling `addBooking(booking)`. The method `BookingService#update()` is also annotated
+with `@Transactional(isolation = Isolation.SERIALIZABLE)`.
 
 #### DELETE /bookings/{id} - deleteBooking(id)
 
-TODO
+In a regular transaction (`isolation.DEFAULT`), the booking dates, and the booking entity are deleted.
 
-### Scalability
+### Scalability and availability
 
-TODO
+The design of this system permits to have multiple replicas of the Spring Boot java component, thus giving high availability and scalability.
+
+The PostgreSQL also provides high availability using streaming replication.
 
 ### Unit tests and Code coverage
 
@@ -426,4 +431,8 @@ H2-console can be enabled with the property `spring.h2.console.enabled=true` and
   - With h2, I needed to add `@Transactional(isolation = Isolation.SERIALIZABLE)` to prevent concurrent creation of booking.
   - With postgres, this is not necessary because the "select for update" seems to work fine.
   - Adding `@Transactional(isolation = Isolation.SERIALIZABLE)` is not perfect because it also prevents concurrent creation of bookings
-    that not in conflict.
+    that not in conflict. 
+  - The H2 documentation says: "Serializable: Dirty reads, non-repeatable reads, and phantom reads aren't possible.
+    Note that this isolation level in H2 currently doesn't ensure equivalence of concurrent and serializable execution of transactions."
+    
+3. Database password should be passed to the application via kubernetes secret.

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
+  // Automatically increment the version field
   @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
   <S extends BookingEntity> S save(S entity);
 }
