@@ -375,10 +375,10 @@ URL=http://localhost:8080
 #URL=http://34.95.52.30
 http $URL/bookings
 http $URL/availabilities
-http -v POST $URL/bookings fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-01' departureDate='2021-05-03'
+http -v POST $URL/bookings fullname="Nicolas B" email="nbrouard@test.com" arrivalDate='2021-05-01' departureDate='2021-05-03'
 http $URL/bookings
 http $URL/bookings/1
-http -v PUT $URL/bookings/1 fullname="Nicolas Brouard" email="nicolas.brouard@gmail.com" arrivalDate='2021-05-02' departureDate='2021-05-03'
+http -v PUT $URL/bookings/1 fullname="Nicolas B" email="nbrouard@test.com" arrivalDate='2021-05-02' departureDate='2021-05-03'
 http $URL/bookings/1
 http DELETE $URL/bookings/1
 ```
